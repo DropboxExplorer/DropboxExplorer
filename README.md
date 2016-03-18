@@ -1,4 +1,4 @@
-# DropboxExplorer
+# Dropbox Explorer
 The Dropbox Explorer common dialog controls can be used as replacement Open and Save dialogs.
 
 ##User Experience
