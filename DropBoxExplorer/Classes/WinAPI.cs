@@ -99,6 +99,7 @@ namespace DropboxExplorer
             #endregion
         }
 
+        #pragma warning disable 649
         private struct IMAGELISTDRAWPARAMS
         {
             public int cbSize;
