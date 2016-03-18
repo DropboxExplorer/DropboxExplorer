@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <projectUrl>http://dropboxexplorer.com/</projectUrl>
+    <iconUrl>http://dropboxexplorer.com/wp-content/uploads/2016/02/Dropbox-Explorer-512.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>First release.</releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>Dropbox Explorer Common Dialog for .NET</tags>
+  </metadata>
+</package>
