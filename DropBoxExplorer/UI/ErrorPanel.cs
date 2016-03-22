@@ -42,14 +42,14 @@ namespace DropboxExplorer
         /// <param name="parent">The parent control to add the panel to</param>
         /// <param name="message">The message to display</param>
         /// <param name="ex">The initial exception</param>
-        internal static void ShowError(Control parent, string message, Exception ex)
+        internal static void ShowError(Control parent, Exception ex)
         {
             foreach (Control ctl in parent.Controls)
                 ctl.Hide();
 
             ErrorPanel err = new ErrorPanel();
             err.Exception = ex;
-            err.lblMessage.Text = message;
+            err.lblMessage.Text = ex.Message;
             err.Dock = DockStyle.Fill;
             parent.Controls.Add(err);
         }

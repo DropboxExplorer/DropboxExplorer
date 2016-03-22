@@ -28,8 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.picWarning = new System.Windows.Forms.PictureBox();
-            this.lblMessage = new System.Windows.Forms.Label();
+            this.picWarning = new DropboxExplorer.HandPictureBox();
+            this.lblMessage = new DropboxExplorer.HandLabel();
             ((System.ComponentModel.ISupportInitialize)(this.picWarning)).BeginInit();
             this.SuspendLayout();
             // 
@@ -53,7 +53,7 @@
             this.lblMessage.Cursor = System.Windows.Forms.Cursors.Hand;
             this.lblMessage.Location = new System.Drawing.Point(54, 100);
             this.lblMessage.Name = "lblMessage";
-            this.lblMessage.Size = new System.Drawing.Size(198, 154);
+            this.lblMessage.Size = new System.Drawing.Size(198, 61);
             this.lblMessage.TabIndex = 1;
             this.lblMessage.Text = "A problem occurred communicating with Dropbox";
             this.lblMessage.Click += new System.EventHandler(this.Error_Click);
@@ -76,7 +76,7 @@
 
         #endregion
 
-        private System.Windows.Forms.PictureBox picWarning;
-        private System.Windows.Forms.Label lblMessage;
+        private HandPictureBox picWarning;
+        private HandLabel lblMessage;
     }
 }

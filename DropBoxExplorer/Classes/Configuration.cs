@@ -30,7 +30,7 @@ namespace DropboxExplorer
         /// The Dropbbox redirect URL after an authorization as defined for the 'app' in the Dropbox developers portal
         /// </summary>
         public static string DropboxAuthorizationUrl { get; set; }
-
+        
         static Configuration()
         {
             DropboxAppKey = "";

@@ -31,6 +31,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WebLogin));
             this.browser = new System.Windows.Forms.WebBrowser();
             this.busyIcon1 = new DropboxExplorer.BusyIcon();
+            this.workerTest = new System.ComponentModel.BackgroundWorker();
             ((System.ComponentModel.ISupportInitialize)(this.busyIcon1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -56,6 +57,11 @@
             this.busyIcon1.TabIndex = 8;
             this.busyIcon1.TabStop = false;
             // 
+            // workerTest
+            // 
+            this.workerTest.DoWork += new System.ComponentModel.DoWorkEventHandler(this.workerTest_DoWork);
+            this.workerTest.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.workerTest_RunWorkerCompleted);
+            // 
             // WebLogin
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -76,5 +82,6 @@
 
         private System.Windows.Forms.WebBrowser browser;
         private BusyIcon busyIcon1;
+        private System.ComponentModel.BackgroundWorker workerTest;
     }
 }

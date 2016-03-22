@@ -93,6 +93,12 @@
     <Compile Include="UI\BusyIcon.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="UI\HandLabel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UI\HandPictureBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="UI\NavigationBar.cs">
       <SubType>Component</SubType>
     </Compile>

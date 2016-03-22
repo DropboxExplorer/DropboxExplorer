@@ -63,7 +63,7 @@ namespace DropboxExplorer
             }
             catch (Exception ex)
             {
-                ErrorPanel.ShowError(this, "A problem occurred downloading the file.", ex);
+                ErrorPanel.ShowError(this, ex);
             }
         }
 
@@ -95,7 +95,7 @@ namespace DropboxExplorer
             }
             catch (Exception ex)
             {
-                ErrorPanel.ShowError(this, "A problem occurred uploading the file.", ex);
+                ErrorPanel.ShowError(this, ex);
             }
         }
     }

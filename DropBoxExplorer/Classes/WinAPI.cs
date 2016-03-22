@@ -552,5 +552,21 @@ namespace DropboxExplorer
             return (short)(word & short.MaxValue);
         }
         #endregion
+
+        #region Cursors
+        internal const int WM_SETCURSOR = 0x0020;
+        private const int IDC_HAND = 32649;
+
+        [DllImport("user32.dll")]
+        private static extern int LoadCursor(int hInstance, int lpCursorName);
+
+        [DllImport("user32.dll")]
+        private static extern int SetCursor(int hCursor);
+
+        internal static void SetHandCursor()
+        {
+            SetCursor(LoadCursor(0, IDC_HAND));
+        }
+        #endregion
     }
 }

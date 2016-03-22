@@ -138,7 +138,7 @@ namespace DropboxExplorer
             }
             catch (Exception ex)
             {
-                ErrorPanel.ShowError(this, "A problem occurred retrieving folder contents.", ex);
+                ErrorPanel.ShowError(this, ex);
             }
             
             busyIcon1.Hide();

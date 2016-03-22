@@ -42,8 +42,39 @@ namespace DropboxExplorer
         internal void Initialise()
         {
             busyIcon1.Show();
-            _Authorization = new DropboxAuthorization();
-            browser.Navigate(_Authorization.URI);
+
+            // Run background test to check we have connectivity to dropbox url
+            workerTest.RunWorkerAsync();
+        }
+
+        private void workerTest_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            try
+            {
+                _Authorization = new DropboxAuthorization();
+
+                System.Net.WebRequest myRequest = System.Net.WebRequest.Create(_Authorization.URI);
+                System.Net.WebResponse myResponse = myRequest.GetResponse();
+
+                e.Result = null;
+            }
+            catch (Exception ex)
+            {
+                e.Result = ex;
+            }
+        }
+
+        private void workerTest_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        {
+            // If test was successful then navigate browser to dropbox login url
+            if (e.Result == null)
+            {
+                browser.Navigate(_Authorization.URI);
+            }
+            else
+            {
+                ErrorPanel.ShowError(this, e.Result as Exception);
+            }
         }
 
         private void browser_Navigated(object sender, WebBrowserNavigatedEventArgs e)
@@ -70,7 +101,7 @@ namespace DropboxExplorer
             }
             catch (Exception ex)
             {
-                ErrorPanel.ShowError(this, "Unable to login to Dropbox", ex);
+                ErrorPanel.ShowError(this, ex);
             }
         }
     }
