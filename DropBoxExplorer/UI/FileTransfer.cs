@@ -44,7 +44,9 @@ namespace DropboxExplorer
         {
             try
             {
-                lblTransfer.Text = string.Format("Downloading file '{0}'\r\n\r\nTo '{1}'", dropboxFilePath, localFilePath);
+                lblAction.Text = "Downloading file";
+                lblSource.Text = dropboxFilePath;
+                lblDestination.Text = localFilePath;
                 this.Show();
                 this.BringToFront();
 
@@ -77,7 +79,9 @@ namespace DropboxExplorer
         {
             try
             {
-                lblTransfer.Text = string.Format("Uploading file '{0}'\r\n\r\nTo 'Dropbox{1}'", localFilePath, dropboxFilePath);
+                lblAction.Text = "Uploading file";
+                lblSource.Text = localFilePath;
+                lblDestination.Text = dropboxFilePath;
                 this.Show();
                 this.BringToFront();
                 DateTime timeout = DateTime.Now.AddMilliseconds(FileTransferMinTimeMS);
