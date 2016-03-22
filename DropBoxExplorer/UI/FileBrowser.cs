@@ -1,5 +1,4 @@
-﻿/*
-Copyright 2016 dropboxexplorer.com
+﻿/* Copyright 2016 dropboxexplorer.com
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,12 +22,14 @@ namespace DropboxExplorer
     /// <summary>
     /// A full file browser control with navigation toolbar
     /// </summary>
-    internal partial class FileBrowser : UserControl
+    /// <remarks>
+    /// Initialise must be called to initially show the login panel
+    /// Once logged in for a session, it can be used to jump directly to a dropbox folder
+    /// </remarks>
+    public partial class FileBrowser : UserControl
     {
         #region Public properties
         internal string Path { get; private set; }
-
-        internal Exception LastException { get; private set; }
         #endregion
 
         #region Public events
@@ -64,6 +65,7 @@ namespace DropboxExplorer
         #region Constructor
         public FileBrowser()
         {
+            Path = "";
             InitializeComponent();
         }
         #endregion
@@ -72,8 +74,10 @@ namespace DropboxExplorer
         /// <summary>
         /// Initialises the control by navigating to the Dropbox login page or the root folder if already authorized
         /// </summary>
-        internal async void Initialise()
+        public async void Initialise(string initialPath = "")
         {
+            initialPath = "Pictures";
+            Path = initialPath;
             if (string.IsNullOrEmpty(DropboxAuthorization.AccessToken))
             {
                 login.Initialise();
@@ -90,7 +94,7 @@ namespace DropboxExplorer
         /// Gets the full path to the selected item
         /// </summary>
         /// <returns>The full path to the selected item</returns>
-        internal string GetSelectedFilePath()
+        public string GetSelectedFilePath()
         {
             return listing.SelectedItem;
         }
@@ -98,7 +102,7 @@ namespace DropboxExplorer
         /// <summary>
         /// Clears the current selection
         /// </summary>
-        internal void ClearSelection()
+        public void ClearSelection()
         {
             listing.ClearSelection();
         }
@@ -126,12 +130,12 @@ namespace DropboxExplorer
             }
         }
 
-        private void listing_ItemDoubleClicked(object sender, FileListing.ItemSelectedArgs e)
+        private async void listing_ItemDoubleClicked(object sender, FileListing.ItemSelectedArgs e)
         {
             switch (e.Item.ItemType)
             {
                 case FileSystemObjectType.Folder:
-                    NavigateToFolder(e.Item.Path);
+                    await NavigateToFolder(e.Item.Path);
                     break;
 
                 case FileSystemObjectType.File:
@@ -158,10 +162,10 @@ namespace DropboxExplorer
             listing.Show();
             login.Hide();
 
-            await listing.NavigateToFolder("");
+            await NavigateToFolder(Path);
         }
 
-        private async void NavigateToFolder(string path)
+        private async Task NavigateToFolder(string path)
         {
             Path = path;
             toolbar.SetPath(path);
