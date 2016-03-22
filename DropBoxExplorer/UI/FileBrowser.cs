@@ -115,12 +115,12 @@ namespace DropboxExplorer
         #region File listing
         private void listing_ItemSelected(object sender, FileListing.ItemSelectedArgs e)
         {
-            switch (e.ItemType)
+            switch (e.Item.ItemType)
             {
-                case FileListing.ItemSelectedArgs.SelectedItemType.File:
+                case FileSystemObjectType.File:
                     if (FileSelected != null)
                     {
-                        FileSelected(this, new ItemSelectedArgs(e.Path));
+                        FileSelected(this, new ItemSelectedArgs(e.Item.Path));
                     }
                     break;
             }
@@ -128,16 +128,16 @@ namespace DropboxExplorer
 
         private void listing_ItemDoubleClicked(object sender, FileListing.ItemSelectedArgs e)
         {
-            switch (e.ItemType)
+            switch (e.Item.ItemType)
             {
-                case FileListing.ItemSelectedArgs.SelectedItemType.Folder:
-                    NavigateToFolder(e.Path);
+                case FileSystemObjectType.Folder:
+                    NavigateToFolder(e.Item.Path);
                     break;
 
-                case FileListing.ItemSelectedArgs.SelectedItemType.File:
+                case FileSystemObjectType.File:
                     if (FileDoubleClicked != null)
                     {
-                        FileDoubleClicked(this, new ItemSelectedArgs(e.Path));
+                        FileDoubleClicked(this, new ItemSelectedArgs(e.Item.Path));
                     }
                     break;
             }

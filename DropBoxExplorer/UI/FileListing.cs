@@ -17,11 +17,8 @@ limitations under the License.
 using System;
 using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
-using Dropbox.Api.Files;
 
 namespace DropboxExplorer
 {
@@ -35,21 +32,12 @@ namespace DropboxExplorer
         #region Public events
         public class ItemSelectedArgs : EventArgs
         {
-            public enum SelectedItemType
+            public FileSystemObject Item { get; set; }
+
+            public ItemSelectedArgs(FileSystemObject item)
             {
-                Folder,
-                File
+                Item = item;
             }
-
-            /// <summary>
-            /// The type of the item selected
-            /// </summary>
-            public SelectedItemType ItemType { get; internal set; }
-
-            /// <summary>
-            /// The path to the selected item
-            /// </summary>
-            public string Path { get; internal set; }
         }
 
         /// <summary>
@@ -92,10 +80,10 @@ namespace DropboxExplorer
         {
             get
             {
-                Metadata item = GetSelectedObject();
+                FileSystemObject item = GetSelectedObject();
                 if (item != null)
                 {
-                    return item.PathLower;
+                    return item.Path;
                 }
                 return "";
             }
@@ -122,17 +110,21 @@ namespace DropboxExplorer
 
                 using (var dropbox = new DropboxFiles())
                 {
-                    var list = await dropbox.GetFolderContents(path);
+                    var items = await dropbox.GetFolderContents(path);
 
-                    foreach (var folder in list.Entries.Where(i => i.IsFolder))
+                    foreach (var item in items)
                     {
-                        var item = AddItem(folder.Name, "Folder", "", "File folder", "");
-                        item.Tag = folder;
-                    }
+                        switch (item.ItemType)
+                        {
+                            case FileSystemObjectType.Folder:
+                                var folder = AddItem(item.Name, "Folder", "", "File folder", "");
+                                folder.Tag = item;
+                                break;
 
-                    foreach (var file in list.Entries.Where(i => i.IsFile))
-                    {
-                        var task = AddFile(dropbox, file.AsFile);
+                            case FileSystemObjectType.File:
+                                var task = AddFile(dropbox, item);
+                                break;
+                        }
                     }
                 }
             }
@@ -190,7 +182,7 @@ namespace DropboxExplorer
             await NavigateToFolder(_CurrentPath);
         }
 
-        private void menuTiles_Click(object sender, EventArgs e)
+        private void menuView_Click(object sender, EventArgs e)
         {
             ToolStripMenuItem item = sender as ToolStripMenuItem;
             listview.View = (View)int.Parse(item.Tag.ToString());
@@ -207,39 +199,37 @@ namespace DropboxExplorer
             }
         }
 
-        private Metadata GetSelectedObject()
+        private FileSystemObject GetSelectedObject()
         {
             if (listview.SelectedItems.Count > 0)
             {
                 var item = listview.SelectedItems[0];
-                return item.Tag as Metadata;
+                return item.Tag as FileSystemObject;
             }
             return null;
         }
 
         private ItemSelectedArgs GetSelectedItemArgs()
         {
-            Metadata item = GetSelectedObject();
+            FileSystemObject item = GetSelectedObject();
             if (item != null)
             {
-                ItemSelectedArgs args = new ItemSelectedArgs();
-                args.ItemType = (item.IsFolder ? ItemSelectedArgs.SelectedItemType.Folder : ItemSelectedArgs.SelectedItemType.File);
-                args.Path = item.PathLower;
-                return args;
+                ItemSelectedArgs args = new ItemSelectedArgs(item);
+                return new ItemSelectedArgs(item);
             }
             return null;
         }
 
-        private async Task AddFile(DropboxFiles dropbox, FileMetadata file)
+        private async Task AddFile(DropboxFiles dropbox, FileSystemObject file)
         {
             const string THUMBNAILS = ".jpg.jpeg.png.tiff.tif.gif.bmp";
 
             string ext = System.IO.Path.GetExtension(file.Name);
             string imageKey = ext;
 
-            if (filetypes16.Images.ContainsKey(file.PathLower))
+            if (filetypes16.Images.ContainsKey(file.Path))
             {
-                imageKey = file.PathLower;
+                imageKey = file.Path;
             }
             else if (!filetypes16.Images.ContainsKey(ext))
             {
@@ -247,22 +237,18 @@ namespace DropboxExplorer
                 filetypes48.Images.Add(ext, WinAPI.GetFileExtraLargeIcon(file.Name));
             }
 
-            var item = AddItem(file.Name, imageKey, file.AsFile.ClientModified.ToString(), WinAPI.GetFileTypeName(ext), WinAPI.FormatBytes(file.AsFile.Size));
+            var item = AddItem(file.Name, imageKey, file.ClientModified.ToString(), WinAPI.GetFileTypeName(ext), WinAPI.FormatBytes(file.Size));
             item.Tag = file;
 
             // If current image is based on extension, get the thumbnail
             if (THUMBNAILS.Contains(ext) && imageKey == ext)
             {
-                var task = await dropbox.GetThumbnail(file.PathLower);
-                using (var stream = task.GetContentAsStreamAsync())
+                using (var image = await dropbox.GetThumbnail(file.Path))
                 {
-                    using (Bitmap image = new Bitmap(stream.Result))
-                    {
-                        Image thumbnail = GetThumbnail(image, filetypes48.ImageSize.Width);
-                        filetypes16.Images.Add(file.PathLower, WinAPI.GetFileSmallIcon(file.Name));
-                        filetypes48.Images.Add(file.PathLower, thumbnail);
-                        item.ImageKey = file.PathLower;
-                    }
+                    Image thumbnail = GetThumbnail(image, filetypes48.ImageSize.Width);
+                    filetypes16.Images.Add(file.Path, WinAPI.GetFileSmallIcon(file.Name));
+                    filetypes48.Images.Add(file.Path, thumbnail);
+                    item.ImageKey = file.Path;
                 }
             }
         }

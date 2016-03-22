@@ -31,8 +31,6 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FileListing));
             this.listview = new System.Windows.Forms.ListView();
-            this.filetypes48 = new System.Windows.Forms.ImageList(this.components);
-            this.filetypes16 = new System.Windows.Forms.ImageList(this.components);
             this.menuBrowser = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.menuBrowserRefresh = new System.Windows.Forms.ToolStripMenuItem();
             this.menuBrowserSep0 = new System.Windows.Forms.ToolStripSeparator();
@@ -41,6 +39,8 @@
             this.menuSmallIcons = new System.Windows.Forms.ToolStripMenuItem();
             this.menuList = new System.Windows.Forms.ToolStripMenuItem();
             this.menuDetails = new System.Windows.Forms.ToolStripMenuItem();
+            this.filetypes48 = new System.Windows.Forms.ImageList(this.components);
+            this.filetypes16 = new System.Windows.Forms.ImageList(this.components);
             this.busyIcon1 = new DropboxExplorer.BusyIcon();
             this.menuBrowser.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.busyIcon1)).BeginInit();
@@ -50,6 +50,7 @@
             // 
             this.listview.AllowColumnReorder = true;
             this.listview.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.listview.ContextMenuStrip = this.menuBrowser;
             this.listview.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listview.FullRowSelect = true;
             this.listview.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
@@ -65,18 +66,6 @@
             this.listview.SelectedIndexChanged += new System.EventHandler(this.listview_SelectedIndexChanged);
             this.listview.DoubleClick += new System.EventHandler(this.listview_DoubleClick);
             // 
-            // filetypes48
-            // 
-            this.filetypes48.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
-            this.filetypes48.ImageSize = new System.Drawing.Size(48, 48);
-            this.filetypes48.TransparentColor = System.Drawing.Color.Transparent;
-            // 
-            // filetypes16
-            // 
-            this.filetypes16.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
-            this.filetypes16.ImageSize = new System.Drawing.Size(16, 16);
-            this.filetypes16.TransparentColor = System.Drawing.Color.Transparent;
-            // 
             // menuBrowser
             // 
             this.menuBrowser.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -88,56 +77,72 @@
             this.menuList,
             this.menuDetails});
             this.menuBrowser.Name = "menu";
-            this.menuBrowser.Size = new System.Drawing.Size(153, 164);
+            this.menuBrowser.Size = new System.Drawing.Size(135, 142);
             this.menuBrowser.Opening += new System.ComponentModel.CancelEventHandler(this.menuBrowser_Opening);
             // 
             // menuBrowserRefresh
             // 
             this.menuBrowserRefresh.Name = "menuBrowserRefresh";
-            this.menuBrowserRefresh.Size = new System.Drawing.Size(152, 22);
+            this.menuBrowserRefresh.Size = new System.Drawing.Size(134, 22);
             this.menuBrowserRefresh.Text = "Refresh";
             this.menuBrowserRefresh.Click += new System.EventHandler(this.menuBrowserRefresh_Click);
             // 
             // menuBrowserSep0
             // 
             this.menuBrowserSep0.Name = "menuBrowserSep0";
-            this.menuBrowserSep0.Size = new System.Drawing.Size(149, 6);
+            this.menuBrowserSep0.Size = new System.Drawing.Size(131, 6);
             // 
             // menuTiles
             // 
             this.menuTiles.Name = "menuTiles";
-            this.menuTiles.Size = new System.Drawing.Size(152, 22);
+            this.menuTiles.Size = new System.Drawing.Size(134, 22);
             this.menuTiles.Tag = "4";
             this.menuTiles.Text = "Tiles";
-            this.menuTiles.Click += new System.EventHandler(this.menuTiles_Click);
+            this.menuTiles.Click += new System.EventHandler(this.menuView_Click);
             // 
             // menuLargeIcons
             // 
             this.menuLargeIcons.Name = "menuLargeIcons";
-            this.menuLargeIcons.Size = new System.Drawing.Size(152, 22);
+            this.menuLargeIcons.Size = new System.Drawing.Size(134, 22);
             this.menuLargeIcons.Tag = "0";
             this.menuLargeIcons.Text = "Large Icons";
+            this.menuLargeIcons.Click += new System.EventHandler(this.menuView_Click);
             // 
             // menuSmallIcons
             // 
             this.menuSmallIcons.Name = "menuSmallIcons";
-            this.menuSmallIcons.Size = new System.Drawing.Size(152, 22);
+            this.menuSmallIcons.Size = new System.Drawing.Size(134, 22);
             this.menuSmallIcons.Tag = "2";
             this.menuSmallIcons.Text = "Small Icons";
+            this.menuSmallIcons.Click += new System.EventHandler(this.menuView_Click);
             // 
             // menuList
             // 
             this.menuList.Name = "menuList";
-            this.menuList.Size = new System.Drawing.Size(152, 22);
+            this.menuList.Size = new System.Drawing.Size(134, 22);
             this.menuList.Tag = "3";
             this.menuList.Text = "List";
+            this.menuList.Click += new System.EventHandler(this.menuView_Click);
             // 
             // menuDetails
             // 
             this.menuDetails.Name = "menuDetails";
-            this.menuDetails.Size = new System.Drawing.Size(152, 22);
+            this.menuDetails.Size = new System.Drawing.Size(134, 22);
             this.menuDetails.Tag = "1";
             this.menuDetails.Text = "Details";
+            this.menuDetails.Click += new System.EventHandler(this.menuView_Click);
+            // 
+            // filetypes48
+            // 
+            this.filetypes48.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
+            this.filetypes48.ImageSize = new System.Drawing.Size(48, 48);
+            this.filetypes48.TransparentColor = System.Drawing.Color.Transparent;
+            // 
+            // filetypes16
+            // 
+            this.filetypes16.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
+            this.filetypes16.ImageSize = new System.Drawing.Size(16, 16);
+            this.filetypes16.TransparentColor = System.Drawing.Color.Transparent;
             // 
             // busyIcon1
             // 

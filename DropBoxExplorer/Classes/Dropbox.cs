@@ -15,10 +15,12 @@ limitations under the License.
 */
 
 using System;
+using System.Drawing;
+using System.Linq;
 using System.Threading.Tasks;
+
 using Dropbox.Api;
 using Dropbox.Api.Files;
-using Dropbox.Api.Babel;
 
 namespace DropboxExplorer
 {
@@ -89,9 +91,45 @@ namespace DropboxExplorer
         /// </summary>
         /// <param name="path">The folder to get contents of</param>
         /// <returns>A collection of file and folder items</returns>
-        public Task<ListFolderResult> GetFolderContents(string path)
+        //public Task<ListFolderResult> GetFolderContents(string path)
+        //{
+        //    return _Dropbox.Files.ListFolderAsync(path);
+        //}
+        public async Task<FileSystemObjects> GetFolderContents(string path)
         {
-            return _Dropbox.Files.ListFolderAsync(path);
+            FileSystemObjects items = new FileSystemObjects();
+
+            // Get all items
+            Task<ListFolderResult> dropboxResults = null;
+            var operation = Task.Factory.StartNew(() =>
+            {
+                dropboxResults = _Dropbox.Files.ListFolderAsync(path);
+            });
+            await operation;
+
+            // Process folders
+            foreach (var result in dropboxResults.Result.Entries.Where(i => i.IsFolder))
+            {
+                FileSystemObject item = new FileSystemObject();
+                item.ItemType = FileSystemObjectType.Folder;
+                item.Name = result.Name;
+                item.Path = result.PathLower;
+                items.Add(item);
+            }
+
+            // Process files
+            foreach (var result in dropboxResults.Result.Entries.Where(i => i.IsFile))
+            {
+                FileSystemObject item = new FileSystemObject();
+                item.ItemType = FileSystemObjectType.File;
+                item.Name = result.Name;
+                item.Path = result.PathLower;
+                item.ClientModified = result.AsFile.ClientModified;
+                item.Size = result.AsFile.Size;
+                items.Add(item);
+            }
+
+            return items;
         }
 
         /// <summary>
@@ -99,9 +137,13 @@ namespace DropboxExplorer
         /// </summary>
         /// <param name="path">The path to the item</param>
         /// <returns>The thumbnail</returns>
-        public Task<IDownloadResponse<FileMetadata>> GetThumbnail(string path)
+        public async Task<Image> GetThumbnail(string path)
         {
-            return _Dropbox.Files.GetThumbnailAsync(path);
+            var task = await _Dropbox.Files.GetThumbnailAsync(path);
+            using (var stream = task.GetContentAsStreamAsync())
+            {
+                return new Bitmap(stream.Result);
+            }
         }
 
         /// <summary>
@@ -127,7 +169,7 @@ namespace DropboxExplorer
         {
             using (System.IO.FileStream stream = new System.IO.FileStream(localFilePath, System.IO.FileMode.Open))
             {
-                await _Dropbox.Files.UploadAsync(dropboxFilePath, Dropbox.Api.Files.WriteMode.Add.Instance, true, body: stream);
+                await _Dropbox.Files.UploadAsync(dropboxFilePath, WriteMode.Add.Instance, true, body: stream);
             }
         }
 
