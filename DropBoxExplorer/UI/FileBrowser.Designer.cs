@@ -60,6 +60,7 @@
             // 
             // toolbar
             // 
+            this.toolbar.Enabled = false;
             this.toolbar.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.toolbar.Location = new System.Drawing.Point(0, 0);
             this.toolbar.Name = "toolbar";

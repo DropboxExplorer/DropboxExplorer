@@ -123,14 +123,16 @@ namespace DropboxExplorer.UI
             _ButtonUp.Enabled = !DropboxFiles.IsRootPath(_CurrentPath);
         }
         #endregion
-
+        
         #region Event handlers
         private ToolStripItem AddButton(string caption, string tooltip, Image icon, bool showCaption, EventHandler eventHandler, string tag = "")
         {
-            ToolStripItem button = this.Items.Add(caption, icon, eventHandler);
+            ToolStripButton button = new ToolStripButton(caption, icon, eventHandler);
             button.DisplayStyle = (showCaption ? ToolStripItemDisplayStyle.ImageAndText : ToolStripItemDisplayStyle.Image);
             button.ToolTipText = tooltip;
             button.Tag = tag;
+
+            this.Items.Add(button);
             return button;
         }
         

@@ -160,6 +160,7 @@ namespace DropboxExplorer
         {
             listing.Show();
             login.Hide();
+            toolbar.Enabled = true;
 
             await NavigateToFolder(Path);
         }
