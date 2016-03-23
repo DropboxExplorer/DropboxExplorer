@@ -120,6 +120,11 @@ namespace DropboxExplorer
 
         #region Event handlers
         #region File Browser
+        private void fileBrowser1_PathChanged(object sender, FileBrowser.ItemSelectedArgs e)
+        {
+            SetFormState(true);
+        }
+
         private void fileBrowser1_FileSelected(object sender, FileBrowser.ItemSelectedArgs e)
         {
             txtFilename.Text = System.IO.Path.GetFileName(e.Path);

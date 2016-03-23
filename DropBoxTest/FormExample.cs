@@ -16,6 +16,7 @@ limitations under the License.
 using System;
 using System.IO;
 using System.Windows.Forms;
+using Microsoft.Win32;
 
 namespace DropboxExplorer.Test
 {
@@ -30,10 +31,32 @@ namespace DropboxExplorer.Test
 
             txtDownloadFolder.Text = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
 
+            Configuration.DropboxAppKey = GetAppKeyFromReg();
+
             if (string.IsNullOrEmpty(Configuration.DropboxAppKey))
                 lblAppKey.Show();
             else
                 tabControl1.Show();
+        }
+
+        /// <summary>
+        /// Function allows local AppKey to not be in GitHub
+        /// </summary>
+        /// <returns></returns>
+        private static string GetAppKeyFromReg()
+        {
+            try
+            {
+                RegistryKey regKey = Registry.CurrentUser.OpenSubKey(@"Software\Dropbox Explorer", false);
+                if (regKey != null)
+                {
+                    object value = regKey.GetValue("AppKey", "");
+                    return value.ToString();
+                }
+            }
+            catch { }
+
+            return "";
         }
 
         #region Open Dialog - Auto Download

@@ -101,5 +101,12 @@ namespace DropboxExplorer
                 ErrorPanel.ShowError(this, ex);
             }
         }
+
+        private void FileTransfer_Resize(object sender, EventArgs e)
+        {
+            // Make sure controls are centered due to being unreliable with font scalling in Windows
+            busyIcon1.Left = (this.Width - busyIcon1.Width) / 2;
+            tableLayoutPanel1.Left = (this.Width - tableLayoutPanel1.Width) / 2;
+        }
     }
 }

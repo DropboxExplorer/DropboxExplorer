@@ -85,12 +85,6 @@
     <Compile Include="Classes\Data.cs" />
     <Compile Include="Classes\Dropbox.cs" />
     <Compile Include="Classes\Configuration.cs" />
-    <Compile Include="Test\FormExample.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Test\FormExample.Designer.cs">
-      <DependentUpon>FormExample.cs</DependentUpon>
-    </Compile>
     <Compile Include="UI\BusyIcon.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -147,9 +141,6 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Classes\WinAPI.cs" />
-    <EmbeddedResource Include="Test\FormExample.resx">
-      <DependentUpon>FormExample.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="UI\ErrorPanel.resx">
       <DependentUpon>ErrorPanel.cs</DependentUpon>
     </EmbeddedResource>

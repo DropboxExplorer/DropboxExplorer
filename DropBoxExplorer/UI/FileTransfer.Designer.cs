@@ -29,27 +29,16 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FileTransfer));
-            this.busyIcon1 = new DropboxExplorer.BusyIcon();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.lblSource = new System.Windows.Forms.Label();
             this.lblDestination = new System.Windows.Forms.Label();
             this.lblAction = new System.Windows.Forms.Label();
-            ((System.ComponentModel.ISupportInitialize)(this.busyIcon1)).BeginInit();
+            this.busyIcon1 = new DropboxExplorer.BusyIcon();
             this.tableLayoutPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.busyIcon1)).BeginInit();
             this.SuspendLayout();
-            // 
-            // busyIcon1
-            // 
-            this.busyIcon1.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.busyIcon1.Image = ((System.Drawing.Image)(resources.GetObject("busyIcon1.Image")));
-            this.busyIcon1.Location = new System.Drawing.Point(223, 81);
-            this.busyIcon1.Name = "busyIcon1";
-            this.busyIcon1.Size = new System.Drawing.Size(24, 24);
-            this.busyIcon1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.busyIcon1.TabIndex = 7;
-            this.busyIcon1.TabStop = false;
             // 
             // tableLayoutPanel1
             // 
@@ -124,19 +113,31 @@
             this.lblAction.TabIndex = 4;
             this.lblAction.Text = "Downloading file...";
             // 
+            // busyIcon1
+            // 
+            this.busyIcon1.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.busyIcon1.Image = ((System.Drawing.Image)(resources.GetObject("busyIcon1.Image")));
+            this.busyIcon1.Location = new System.Drawing.Point(223, 81);
+            this.busyIcon1.Name = "busyIcon1";
+            this.busyIcon1.Size = new System.Drawing.Size(24, 24);
+            this.busyIcon1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.busyIcon1.TabIndex = 7;
+            this.busyIcon1.TabStop = false;
+            // 
             // FileTransfer
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.BackColor = System.Drawing.SystemColors.Window;
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.busyIcon1);
             this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Name = "FileTransfer";
             this.Size = new System.Drawing.Size(468, 279);
-            ((System.ComponentModel.ISupportInitialize)(this.busyIcon1)).EndInit();
+            this.Resize += new System.EventHandler(this.FileTransfer_Resize);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.busyIcon1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

@@ -299,11 +299,13 @@
             this.lblAppKey.Name = "lblAppKey";
             this.lblAppKey.Size = new System.Drawing.Size(762, 176);
             this.lblAppKey.TabIndex = 21;
-            this.lblAppKey.Text = "Before using this demonstration form, you must provide an application key for the Dropbox API.\r\n\r\nSet the DropboxExplorer.Configuration.DropboxAppKey value to your app key.";
+            this.lblAppKey.Text = "Before using this demonstration form, you must provide an application key for the" +
+    " Dropbox API.\r\n\r\nSet the DropboxExplorer.Configuration.DropboxAppKey value to yo" +
+    "ur app key.";
             this.lblAppKey.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.lblAppKey.Visible = false;
             // 
-            // FormMain
+            // FormExample
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -318,7 +320,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "FormMain";
+            this.Name = "FormExample";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "DropboxExplorer Test Application";
             this.tabControl1.ResumeLayout(false);
