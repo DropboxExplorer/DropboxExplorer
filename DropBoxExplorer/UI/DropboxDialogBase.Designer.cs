@@ -34,8 +34,8 @@
             this.txtFilename = new System.Windows.Forms.TextBox();
             this.lblFilename = new System.Windows.Forms.Label();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.fileBrowser1 = new DropboxExplorer.FileBrowser();
             this.fileTransfer1 = new DropboxExplorer.FileTransfer();
+            this.fileBrowser1 = new DropboxExplorer.FileBrowser();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -108,6 +108,17 @@
             this.tableLayoutPanel1.Size = new System.Drawing.Size(671, 56);
             this.tableLayoutPanel1.TabIndex = 4;
             // 
+            // fileTransfer1
+            // 
+            this.fileTransfer1.BackColor = System.Drawing.SystemColors.Window;
+            this.fileTransfer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fileTransfer1.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.fileTransfer1.Location = new System.Drawing.Point(0, 0);
+            this.fileTransfer1.Name = "fileTransfer1";
+            this.fileTransfer1.Size = new System.Drawing.Size(671, 655);
+            this.fileTransfer1.TabIndex = 2;
+            this.fileTransfer1.Visible = false;
+            // 
             // fileBrowser1
             // 
             this.fileBrowser1.BackColor = System.Drawing.SystemColors.Window;
@@ -120,17 +131,6 @@
             this.fileBrowser1.PathChanged += new System.EventHandler<DropboxExplorer.FileBrowser.ItemSelectedArgs>(this.fileBrowser1_PathChanged);
             this.fileBrowser1.FileSelected += new System.EventHandler<DropboxExplorer.FileBrowser.ItemSelectedArgs>(this.fileBrowser1_FileSelected);
             this.fileBrowser1.FileDoubleClicked += new System.EventHandler<DropboxExplorer.FileBrowser.ItemSelectedArgs>(this.fileBrowser1_FileDoubleClicked);
-            // 
-            // fileTransfer1
-            // 
-            this.fileTransfer1.BackColor = System.Drawing.SystemColors.Window;
-            this.fileTransfer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.fileTransfer1.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.fileTransfer1.Location = new System.Drawing.Point(0, 0);
-            this.fileTransfer1.Name = "fileTransfer1";
-            this.fileTransfer1.Size = new System.Drawing.Size(671, 655);
-            this.fileTransfer1.TabIndex = 2;
-            this.fileTransfer1.Visible = false;
             // 
             // DropboxDialogBase
             // 
