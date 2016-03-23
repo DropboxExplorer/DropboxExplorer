@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 
 using Dropbox.Api;
 using Dropbox.Api.Files;
+using System.Collections.Generic;
 
 namespace DropboxExplorer
 {
@@ -85,6 +86,37 @@ namespace DropboxExplorer
             _Dropbox = new DropboxClient(DropboxAuthorization.AccessToken);
         }
 
+        #region Static helper methods
+        /// <summary>
+        /// Fixes a path so it is compatible with the Dropbox APIs
+        /// </summary>
+        /// <param name="path">The path to fix</param>
+        /// <returns>The fixed path</returns>
+        public static string FixPath(string path)
+        {
+            if (path == null) path = "";
+            if (path.Length > 0 && !path.StartsWith("/")) path = "/" + path;
+            if (path == "/") path = "";
+
+            return path;
+        }
+
+        /// <summary>
+        /// Return true if the given path is the root folder
+        /// </summary>
+        /// <param name="path">The folder to check</param>
+        /// <returns>True if the path is the root folder</returns>
+        internal static bool IsRootPath(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+                return true;
+            if (path == "/")
+                return true;
+
+            return false;
+        }
+        #endregion
+
         /// <summary>
         /// Gets the contents of a folder
         /// </summary>
@@ -99,15 +131,16 @@ namespace DropboxExplorer
             FileSystemObjects items = new FileSystemObjects();
 
             // Get all items
-            Task<ListFolderResult> dropboxResults = null;
+            IList<Metadata> entries = null;
             var operation = Task.Factory.StartNew(() =>
             {
-                dropboxResults = _Dropbox.Files.ListFolderAsync(path);
+                Task<ListFolderResult> results = _Dropbox.Files.ListFolderAsync(path);
+                entries = results.Result.Entries;
             });
             await operation;
-
+            
             // Process folders
-            foreach (var result in dropboxResults.Result.Entries.Where(i => i.IsFolder))
+            foreach (var result in entries.Where(i => i.IsFolder))
             {
                 FileSystemObject item = new FileSystemObject();
                 item.ItemType = FileSystemObjectType.Folder;
@@ -117,7 +150,7 @@ namespace DropboxExplorer
             }
 
             // Process files
-            foreach (var result in dropboxResults.Result.Entries.Where(i => i.IsFile))
+            foreach (var result in entries.Where(i => i.IsFile))
             {
                 FileSystemObject item = new FileSystemObject();
                 item.ItemType = FileSystemObjectType.File;
@@ -127,10 +160,10 @@ namespace DropboxExplorer
                 item.Size = result.AsFile.Size;
                 items.Add(item);
             }
-
+            
             return items;
         }
-
+        
         /// <summary>
         /// Gets the thumbnail for an item
         /// </summary>

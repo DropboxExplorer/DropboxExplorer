@@ -95,21 +95,22 @@ namespace DropboxExplorer
         /// <returns>The result of the asynchronous operation</returns>
         internal async Task NavigateToFolder(string path)
         {
-            _CurrentPath = path;
-            if (path == null) path = "";
-            if (path.Length > 0 && !path.StartsWith("/")) path = "/" + path;
-            if (path == "/") path = "";
+            _CurrentPath = DropboxFiles.FixPath(path);
 
             busyIcon1.Show();
             busyIcon1.BringToFront();
             
             try
             {
+                // Clear the list for for common code path to make UI look correct
                 listview.Items.Clear();
 
                 using (var dropbox = new DropboxFiles())
                 {
-                    var items = await dropbox.GetFolderContents(path);
+                    var items = await dropbox.GetFolderContents(_CurrentPath);
+
+                    // We might have ended up in the async method multiple times so lets clear again just in case
+                    listview.Items.Clear();
 
                     foreach (var item in items)
                     {

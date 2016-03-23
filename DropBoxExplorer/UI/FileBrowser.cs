@@ -76,7 +76,6 @@ namespace DropboxExplorer
         /// </summary>
         public async void Initialise(string initialPath = "")
         {
-            initialPath = "Pictures";
             Path = initialPath;
             if (string.IsNullOrEmpty(DropboxAuthorization.AccessToken))
             {
@@ -149,9 +148,9 @@ namespace DropboxExplorer
         #endregion
 
         #region NavigationBar
-        private void toolbar_PathSelected(object sender, UI.NavigationBar.PathSelectedArgs e)
+        private async void toolbar_PathSelected(object sender, UI.NavigationBar.PathSelectedArgs e)
         {
-            NavigateToFolder(e.Path);
+            await NavigateToFolder(e.Path);
         }
         #endregion
         #endregion

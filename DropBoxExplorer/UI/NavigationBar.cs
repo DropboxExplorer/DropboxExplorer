@@ -70,18 +70,21 @@ namespace DropboxExplorer.UI
         private string _CurrentPath = "";
         #endregion
 
+        #region Constructor
         public NavigationBar()
             : base()
         {
             this.GripStyle = ToolStripGripStyle.Hidden;
             this.Renderer = new BorerlessRenderer();
 
-            _ButtonBack = AddButton("Back", "Back to previous folder", Properties.Resources.Back, false, btnBack_Click);
-            _ButtonUp = AddButton("Up", "Up to parent folder", Properties.Resources.Up, false, btnUp_Click);
+            _ButtonBack = AddButton("Back", "Back to previous folder", Properties.Resources.Back, false, _ButtonBack_Click);
+            _ButtonUp = AddButton("Up", "Up to parent folder", Properties.Resources.Up, false, _ButtonUp_Click);
             this.Items.Add(new ToolStripSeparator());
-            _ButtonRoot = AddButton("Dropbox", "Return to root folder", Properties.Resources.Dropbox, true, btnDropbox_Click);
+            _ButtonRoot = AddButton("Dropbox", "Return to root folder", Properties.Resources.Dropbox, true, _ButtonRoot_Click);
         }
+        #endregion
 
+        #region Public methods
         /// <summary>
         /// Sets the current path
         /// </summary>
@@ -117,9 +120,11 @@ namespace DropboxExplorer.UI
             _CurrentPath = path;
 
             _ButtonBack.Enabled = (_PreviousPaths.Count > 0);
-            _ButtonUp.Enabled = !string.IsNullOrEmpty(_CurrentPath);
+            _ButtonUp.Enabled = !DropboxFiles.IsRootPath(_CurrentPath);
         }
+        #endregion
 
+        #region Event handlers
         private ToolStripItem AddButton(string caption, string tooltip, Image icon, bool showCaption, EventHandler eventHandler, string tag = "")
         {
             ToolStripItem button = this.Items.Add(caption, icon, eventHandler);
@@ -129,29 +134,41 @@ namespace DropboxExplorer.UI
             return button;
         }
         
-        private void btnBack_Click(object sender, EventArgs e)
+        private void _ButtonBack_Click(object sender, EventArgs e)
         {
             if (_PreviousPaths.Count == 0) return;
             string path = _PreviousPaths.Pop();
-            OnPathSelected(path);
+
+            ButtonClick(_ButtonBack, path);
         }
 
-        private void btnUp_Click(object sender, EventArgs e)
+        private void _ButtonUp_Click(object sender, EventArgs e)
         {
+            if (DropboxFiles.IsRootPath(_CurrentPath)) return;
             string path = System.IO.Path.GetDirectoryName(_CurrentPath);
             path = path.Replace('\\', '/');
-            OnPathSelected(path);
+
+            ButtonClick(_ButtonUp, path);
         }
 
-        private void btnDropbox_Click(object sender, EventArgs e)
+        private void _ButtonRoot_Click(object sender, EventArgs e)
         {
-            OnPathSelected("");
+            ButtonClick(_ButtonRoot, "");
         }
 
         private void breadcrumbButton_Click(object sender, EventArgs e)
         {
             string path = ((ToolStripButton)sender).Tag.ToString();
+            ButtonClick((ToolStripButton)sender, path);
+        }
+        #endregion
+
+        #region Helper methods
+        private void ButtonClick(ToolStripItem button, string path)
+        {
+            button.Enabled = false;
             OnPathSelected(path);
         }
+        #endregion
     }
 }
