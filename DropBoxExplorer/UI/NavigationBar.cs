@@ -93,8 +93,13 @@ namespace DropboxExplorer
         {
             // Remember existing path in previous stack
             if (string.Compare(path, _CurrentPath, true) != 0)
-                _PreviousPaths.Push(_CurrentPath);
-
+            {
+                if (_PreviousPaths.Count > 0 && path == _PreviousPaths.Peek())
+                    _PreviousPaths.Pop();
+                else
+                    _PreviousPaths.Push(_CurrentPath);
+            }
+            
             // Remove old buttons
             foreach (var btn in _BreadcrumbButtons)
                 this.Items.Remove(btn);
@@ -119,6 +124,7 @@ namespace DropboxExplorer
 
             _CurrentPath = path;
 
+            _ButtonRoot.Enabled = true;
             _ButtonBack.Enabled = (_PreviousPaths.Count > 0);
             _ButtonUp.Enabled = !DropboxFiles.IsRootPath(_CurrentPath);
         }
@@ -139,7 +145,7 @@ namespace DropboxExplorer
         private void _ButtonBack_Click(object sender, EventArgs e)
         {
             if (_PreviousPaths.Count == 0) return;
-            string path = _PreviousPaths.Pop();
+            string path = _PreviousPaths.Peek();
 
             ButtonClick(_ButtonBack, path);
         }
