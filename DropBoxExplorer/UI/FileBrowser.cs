@@ -148,7 +148,7 @@ namespace DropboxExplorer
         #endregion
 
         #region NavigationBar
-        private async void toolbar_PathSelected(object sender, UI.NavigationBar.PathSelectedArgs e)
+        private async void toolbar_PathSelected(object sender, NavigationBar.PathSelectedArgs e)
         {
             await NavigateToFolder(e.Path);
         }

@@ -14,6 +14,7 @@ limitations under the License.
 */
 
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -63,7 +64,7 @@ namespace DropboxExplorer
             set
             {
                 _UploadFile = value;
-                txtFilename.Text = System.IO.Path.GetFileName(_UploadFile);
+                txtFilename.Text = Path.GetFileName(_UploadFile);
             }
         }
 
@@ -75,8 +76,8 @@ namespace DropboxExplorer
         public async Task DownloadSelectedFile(string localFilePath)
         {
             if (string.IsNullOrEmpty(this.SelectedFile))
-                throw new Exception("No file selected");
-            
+                throw new NoFileSelectedException();
+
             await fileTransfer1.DownloadFileUI(this.SelectedFile, localFilePath);
         }
 
@@ -87,12 +88,10 @@ namespace DropboxExplorer
         /// <returns>An asynchronous operation result.</returns>
         public async Task UploadFileToCurrentFolder(string localFilePath)
         {
-            if (string.IsNullOrEmpty(localFilePath))
-                throw new Exception("No file provided");
-            if (!System.IO.File.Exists(localFilePath))
-                throw new Exception("Local file not found");
+            if (!File.Exists(localFilePath))
+                throw new FileNotFoundException("File to upload not found", localFilePath);
             
-            string dropboxFilePath = System.IO.Path.Combine(fileBrowser1.Path, txtFilename.Text);
+            string dropboxFilePath = Path.Combine(fileBrowser1.Path, txtFilename.Text);
             dropboxFilePath = dropboxFilePath.Replace(@"\", "/");
 
             if (!dropboxFilePath.StartsWith("/"))
@@ -127,7 +126,7 @@ namespace DropboxExplorer
 
         private void fileBrowser1_FileSelected(object sender, FileBrowser.ItemSelectedArgs e)
         {
-            txtFilename.Text = System.IO.Path.GetFileName(e.Path);
+            txtFilename.Text = Path.GetFileName(e.Path);
         }
 
         private void fileBrowser1_FileDoubleClicked(object sender, FileBrowser.ItemSelectedArgs e)
@@ -151,7 +150,7 @@ namespace DropboxExplorer
         #region File name textbox
         private void txtFilename_TextChanged(object sender, EventArgs e)
         {
-            string file = System.IO.Path.GetFileName(fileBrowser1.GetSelectedFilePath());
+            string file = Path.GetFileName(fileBrowser1.GetSelectedFilePath());
             if (txtFilename.Text != file)
                 fileBrowser1.ClearSelection();
         }
@@ -165,7 +164,7 @@ namespace DropboxExplorer
                 return;
 
             if (string.IsNullOrEmpty(this.SelectedFile))
-                throw new Exception("No file selected");
+                throw new NoFileSelectedException();
 
             fileTransfer1.Show();
             fileBrowser1.Hide();
@@ -206,21 +205,21 @@ namespace DropboxExplorer
 
         private string GetUniqueLocalFileName()
         {
-            string fileName = System.IO.Path.GetFileName(this.SelectedFile);
-            string localFilePath = System.IO.Path.Combine(this.DownloadFolder, fileName);
+            string fileName = Path.GetFileName(this.SelectedFile);
+            string localFilePath = Path.Combine(this.DownloadFolder, fileName);
 
-            string name = System.IO.Path.GetFileNameWithoutExtension(localFilePath);
-            string ext = System.IO.Path.GetExtension(localFilePath);
+            string name = Path.GetFileNameWithoutExtension(localFilePath);
+            string ext = Path.GetExtension(localFilePath);
 
             int index = 0;
             while (true)
             {
-                if (!System.IO.File.Exists(localFilePath))
+                if (!File.Exists(localFilePath))
                     break;
 
                 index++;
                 fileName = string.Format("{0} ({1}){2}", name, index, ext);
-                localFilePath = System.IO.Path.Combine(this.DownloadFolder, fileName);
+                localFilePath = Path.Combine(this.DownloadFolder, fileName);
             }
 
             return localFilePath;

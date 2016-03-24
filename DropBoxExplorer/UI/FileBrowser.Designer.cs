@@ -30,7 +30,7 @@
         {
             this.login = new DropboxExplorer.WebLogin();
             this.listing = new DropboxExplorer.FileListing();
-            this.toolbar = new DropboxExplorer.UI.NavigationBar();
+            this.toolbar = new DropboxExplorer.NavigationBar();
             this.SuspendLayout();
             // 
             // login
@@ -67,7 +67,7 @@
             this.toolbar.Size = new System.Drawing.Size(300, 25);
             this.toolbar.TabIndex = 9;
             this.toolbar.Text = "toolbar";
-            this.toolbar.PathSelected += new System.EventHandler<DropboxExplorer.UI.NavigationBar.PathSelectedArgs>(this.toolbar_PathSelected);
+            this.toolbar.PathSelected += new System.EventHandler<NavigationBar.PathSelectedArgs>(this.toolbar_PathSelected);
             // 
             // FileBrowser
             // 
@@ -88,6 +88,6 @@
         #endregion
         private WebLogin login;
         private FileListing listing;
-        private UI.NavigationBar toolbar;
+        private NavigationBar toolbar;
     }
 }

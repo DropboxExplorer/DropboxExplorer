@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace DropboxExplorer.UI
+namespace DropboxExplorer
 {
     /// <summary>
     /// Wraps a ToolStrip to provide basic folder navigation including a multi-level Back, an Up button and a crumbbar for quick ancestor selection
