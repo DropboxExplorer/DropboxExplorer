@@ -10,8 +10,9 @@
     <iconUrl>http://dropboxexplorer.com/wp-content/uploads/2016/02/Dropbox-Explorer-512.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>First release.</releaseNotes>
+    <releaseNotes>Replacement open and save file dialogs for desktop .NET applications.</releaseNotes>
     <copyright>Copyright 2016</copyright>
+	<licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <tags>Dropbox Explorer Common Dialog for .NET</tags>
   </metadata>
 </package>
