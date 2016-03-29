@@ -54,9 +54,7 @@ namespace DropboxExplorer
         public FileListing()
         {
             InitializeComponent();
-
-            Options = new Options();
-
+            
             filetypes16.Images.Clear();
             filetypes16.Images.Add("Folder", Properties.Resources.Folder);
             filetypes16.Images.Add("File", Properties.Resources.File);
@@ -73,8 +71,8 @@ namespace DropboxExplorer
             FillColumnsToWidth();
             WinAPI.ConfigureListView(listview);
         }
-        
-        public Options Options { get; set; }
+
+        public Options Options { get; set; } = new Options();
 
         /// <summary>
         /// Gets the full path to the selected item

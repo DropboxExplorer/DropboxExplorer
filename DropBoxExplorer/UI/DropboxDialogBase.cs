@@ -44,22 +44,22 @@ namespace DropboxExplorer
             get { return fileBrowser1?.Options; }
         }
 
-        internal string Path { get; private set; }
-        
+        internal string Path { get; private set; } = "";
+
         /// <summary>
         /// The full Dropbox path to the currently selected file.
         /// </summary>
-        public string SelectedFile { get; private set; }
+        public string SelectedFile { get; private set; } = "";
 
         /// <summary>
         /// If set, the Open dialog will automatically download the chosen file to this local folder
         /// </summary>
-        public string DownloadFolder { get; set; }
+        public string DownloadFolder { get; set; } = "";
 
         /// <summary>
         /// The full local path to the downloaded file. If a file with the same name already exists, a new unique name will be generated.
         /// </summary>
-        public string DownloadedFile { get; private set; }
+        public string DownloadedFile { get; private set; } = "";
 
         /// <summary>
         /// The full local path of a file the Save dialog should uploaded to the chosen location.
@@ -110,7 +110,6 @@ namespace DropboxExplorer
         #region Constructor
         internal DropboxDialogBase(DialogMode mode)
         {
-            SelectedFile = "";
             _Mode = mode;
 
             InitializeComponent();

@@ -34,7 +34,7 @@ namespace DropboxExplorer
             get { return listing?.Options; }
         }
 
-        internal string Path { get; private set; }
+        internal string Path { get; private set; } = "";
         #endregion
 
         #region Public events
@@ -70,7 +70,6 @@ namespace DropboxExplorer
         #region Constructor
         public FileBrowser()
         {
-            Path = "";
             InitializeComponent();
         }
         #endregion

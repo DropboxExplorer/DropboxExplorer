@@ -17,13 +17,7 @@ namespace DropboxExplorer
 {
     public class Options
     {
-        public bool ShowContextMenu { get; set; }
-        public bool ShowThumbnails { get; set; }
-
-        public Options()
-        {
-            ShowContextMenu = true;
-            ShowThumbnails = true;
-        }
+        public bool ShowContextMenu { get; set; } = true;
+        public bool ShowThumbnails { get; set; } = true;
     }
 }
