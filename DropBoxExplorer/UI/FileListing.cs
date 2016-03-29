@@ -55,6 +55,8 @@ namespace DropboxExplorer
         {
             InitializeComponent();
 
+            Options = new Options();
+
             filetypes16.Images.Clear();
             filetypes16.Images.Add("Folder", Properties.Resources.Folder);
             filetypes16.Images.Add("File", Properties.Resources.File);
@@ -72,6 +74,8 @@ namespace DropboxExplorer
             WinAPI.ConfigureListView(listview);
         }
         
+        public Options Options { get; set; }
+
         /// <summary>
         /// Gets the full path to the selected item
         /// </summary>
@@ -169,12 +173,19 @@ namespace DropboxExplorer
 
         private void menuBrowser_Opening(object sender, CancelEventArgs e)
         {
-            View view = listview.View;
-            menuTiles.Checked = (view == View.Tile);
-            menuLargeIcons.Checked = (view == View.LargeIcon);
-            menuSmallIcons.Checked = (view == View.SmallIcon);
-            menuList.Checked = (view == View.List);
-            menuDetails.Checked = (view == View.Details);
+            if (this.Options.ShowContextMenu)
+            {
+                View view = listview.View;
+                menuTiles.Checked = (view == View.Tile);
+                menuLargeIcons.Checked = (view == View.LargeIcon);
+                menuSmallIcons.Checked = (view == View.SmallIcon);
+                menuList.Checked = (view == View.List);
+                menuDetails.Checked = (view == View.Details);
+            }
+            else
+            {
+                e.Cancel = true;
+            }
         }
 
         private async void menuBrowserRefresh_Click(object sender, EventArgs e)
@@ -241,14 +252,17 @@ namespace DropboxExplorer
             item.Tag = file;
 
             // If current image is based on extension, get the thumbnail
-            if (THUMBNAILS.Contains(ext) && imageKey == ext)
+            if (this.Options.ShowThumbnails)
             {
-                using (var image = await dropbox.GetThumbnail(file.Path))
+                if (THUMBNAILS.Contains(ext) && imageKey == ext)
                 {
-                    Image thumbnail = GetThumbnail(image, filetypes48.ImageSize.Width);
-                    filetypes16.Images.Add(file.Path, WinAPI.GetFileSmallIcon(file.Name));
-                    filetypes48.Images.Add(file.Path, thumbnail);
-                    item.ImageKey = file.Path;
+                    using (var image = await dropbox.GetThumbnail(file.Path))
+                    {
+                        Image thumbnail = GetThumbnail(image, filetypes48.ImageSize.Width);
+                        filetypes16.Images.Add(file.Path, WinAPI.GetFileSmallIcon(file.Name));
+                        filetypes48.Images.Add(file.Path, thumbnail);
+                        item.ImageKey = file.Path;
+                    }
                 }
             }
         }

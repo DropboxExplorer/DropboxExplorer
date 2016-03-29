@@ -29,6 +29,11 @@ namespace DropboxExplorer
     public partial class FileBrowser : UserControl
     {
         #region Public properties
+        public Options Options
+        {
+            get { return listing?.Options; }
+        }
+
         internal string Path { get; private set; }
         #endregion
 
