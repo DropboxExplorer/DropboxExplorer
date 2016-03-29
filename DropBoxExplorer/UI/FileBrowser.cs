@@ -29,12 +29,25 @@ namespace DropboxExplorer
     public partial class FileBrowser : UserControl
     {
         #region Public properties
-        public Options Options
-        {
-            get { return listing?.Options; }
-        }
-
         internal string Path { get; private set; } = "";
+        
+        public bool ShowNewFolderButton
+        {
+            get
+            {
+                if (toolbar == null)
+                    return false;
+                else
+                    return toolbar.ShowNewFolderButton;
+            }
+            set
+            {
+                if (toolbar != null)
+                    toolbar.ShowNewFolderButton = value;
+                if (listing != null)
+                    listing.ShowNewFolderButton = value;
+            }
+        }
         #endregion
 
         #region Public events
@@ -152,6 +165,11 @@ namespace DropboxExplorer
         #endregion
 
         #region NavigationBar
+        private void toolbar_NewFolder(object sender, EventArgs e)
+        {
+            listing.NewFolder();
+        }
+
         private async void toolbar_PathSelected(object sender, NavigationBar.PathSelectedArgs e)
         {
             await NavigateToFolder(e.Path);

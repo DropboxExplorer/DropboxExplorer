@@ -179,6 +179,16 @@ namespace DropboxExplorer
         }
 
         /// <summary>
+        /// Creates a new folder
+        /// </summary>
+        /// <param name="path">The full path of the folder to create</param>
+        /// <returns>The result of the asynchronous operation</returns>
+        public async Task CreateFolder(string path)
+        {
+            var task = await _Dropbox.Files.CreateFolderAsync(path);
+        }
+
+        /// <summary>
         /// Downloads a file from Dropbox
         /// </summary>
         /// <param name="dropboxFilePath">The path to the dropbox file to download</param>

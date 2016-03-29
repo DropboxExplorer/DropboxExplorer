@@ -52,6 +52,7 @@
             this.listing.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.listing.Location = new System.Drawing.Point(0, 25);
             this.listing.Name = "listing";
+            this.listing.ShowNewFolderButton = false;
             this.listing.Size = new System.Drawing.Size(300, 275);
             this.listing.TabIndex = 8;
             this.listing.Visible = false;
@@ -64,10 +65,12 @@
             this.toolbar.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.toolbar.Location = new System.Drawing.Point(0, 0);
             this.toolbar.Name = "toolbar";
+            this.toolbar.ShowNewFolderButton = true;
             this.toolbar.Size = new System.Drawing.Size(300, 25);
             this.toolbar.TabIndex = 9;
             this.toolbar.Text = "toolbar";
-            this.toolbar.PathSelected += new System.EventHandler<NavigationBar.PathSelectedArgs>(this.toolbar_PathSelected);
+            this.toolbar.PathSelected += new System.EventHandler<DropboxExplorer.NavigationBar.PathSelectedArgs>(this.toolbar_PathSelected);
+            this.toolbar.NewFolder += new System.EventHandler<System.EventArgs>(this.toolbar_NewFolder);
             // 
             // FileBrowser
             // 

@@ -58,11 +58,16 @@ namespace DropboxExplorer
             args.Path = path;
             PathSelected(this, args);
         }
+
+        public event EventHandler<EventArgs> NewFolder;
         #endregion
 
         #region Member variables
         private ToolStripItem _ButtonBack = null;
         private ToolStripItem _ButtonUp = null;
+        private ToolStripItem _SeparatorNew = null;
+        private ToolStripItem _ButtonNew = null;
+        private ToolStripItem _SeparatorPath = null;
         private ToolStripItem _ButtonRoot = null;
 
         private List<ToolStripItem> _BreadcrumbButtons = new List<ToolStripItem>();
@@ -77,10 +82,32 @@ namespace DropboxExplorer
             this.GripStyle = ToolStripGripStyle.Hidden;
             this.Renderer = new BorerlessRenderer();
 
+            _ButtonNew = AddButton("New Folder", "Create a new folder in  the current folder", Properties.Resources.FolderNew, true, _ButtonNew_Click);
+            this.Items.Add(_SeparatorNew = new ToolStripSeparator());
+
             _ButtonBack = AddButton("Back", "Back to previous folder", Properties.Resources.Back, false, _ButtonBack_Click);
             _ButtonUp = AddButton("Up", "Up to parent folder", Properties.Resources.Up, false, _ButtonUp_Click);
-            this.Items.Add(new ToolStripSeparator());
+            this.Items.Add(_SeparatorPath = new ToolStripSeparator());
+
             _ButtonRoot = AddButton("Dropbox", "Return to root folder", Properties.Resources.Dropbox, true, _ButtonRoot_Click);
+        }
+        #endregion
+
+        #region Public properties
+        /// <summary>
+        /// Show or hide the New Folder button
+        /// </summary>
+        public bool ShowNewFolderButton
+        {
+            get
+            {
+                return _ButtonNew.Visible;
+            }
+            set
+            {
+                _SeparatorNew.Visible = value;
+                _ButtonNew.Visible = value;
+            }
         }
         #endregion
 
@@ -131,17 +158,6 @@ namespace DropboxExplorer
         #endregion
         
         #region Event handlers
-        private ToolStripItem AddButton(string caption, string tooltip, Image icon, bool showCaption, EventHandler eventHandler, string tag = "")
-        {
-            ToolStripButton button = new ToolStripButton(caption, icon, eventHandler);
-            button.DisplayStyle = (showCaption ? ToolStripItemDisplayStyle.ImageAndText : ToolStripItemDisplayStyle.Image);
-            button.ToolTipText = tooltip;
-            button.Tag = tag;
-
-            this.Items.Add(button);
-            return button;
-        }
-        
         private void _ButtonBack_Click(object sender, EventArgs e)
         {
             if (_PreviousPaths.Count == 0) return;
@@ -164,6 +180,14 @@ namespace DropboxExplorer
             ButtonClick(_ButtonRoot, "");
         }
 
+        private void _ButtonNew_Click(object sender, EventArgs e)
+        {
+            if (NewFolder != null)
+            {
+                NewFolder(this, new EventArgs());
+            }
+        }
+
         private void breadcrumbButton_Click(object sender, EventArgs e)
         {
             string path = ((ToolStripButton)sender).Tag.ToString();
@@ -172,6 +196,17 @@ namespace DropboxExplorer
         #endregion
 
         #region Helper methods
+        private ToolStripItem AddButton(string caption, string tooltip, Image icon, bool showCaption, EventHandler eventHandler, string tag = "")
+        {
+            ToolStripButton button = new ToolStripButton(caption, icon, eventHandler);
+            button.DisplayStyle = (showCaption ? ToolStripItemDisplayStyle.ImageAndText : ToolStripItemDisplayStyle.Image);
+            button.ToolTipText = tooltip;
+            button.Tag = tag;
+
+            this.Items.Add(button);
+            return button;
+        }
+        
         private void ButtonClick(ToolStripItem button, string path)
         {
             button.Enabled = false;

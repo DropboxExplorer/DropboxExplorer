@@ -39,11 +39,6 @@ namespace DropboxExplorer
         #endregion
 
         #region Public interface
-        public Options Options
-        {
-            get { return fileBrowser1?.Options; }
-        }
-
         internal string Path { get; private set; } = "";
 
         /// <summary>
@@ -118,6 +113,7 @@ namespace DropboxExplorer
 
             SetFormState(false);
 
+            fileBrowser1.ShowNewFolderButton = (mode == DialogMode.Save);
             fileBrowser1.Initialise();
         }
         #endregion

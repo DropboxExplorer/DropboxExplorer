@@ -32,8 +32,10 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FileListing));
             this.listview = new System.Windows.Forms.ListView();
             this.menuBrowser = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.menuBrowserRefresh = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuBrowserSep0 = new System.Windows.Forms.ToolStripSeparator();
+            this.menuNewFolder = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuSepNewFolder = new System.Windows.Forms.ToolStripSeparator();
+            this.menuRefresh = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuSepView = new System.Windows.Forms.ToolStripSeparator();
             this.menuTiles = new System.Windows.Forms.ToolStripMenuItem();
             this.menuLargeIcons = new System.Windows.Forms.ToolStripMenuItem();
             this.menuSmallIcons = new System.Windows.Forms.ToolStripMenuItem();
@@ -63,34 +65,49 @@
             this.listview.TabIndex = 1;
             this.listview.UseCompatibleStateImageBehavior = false;
             this.listview.View = System.Windows.Forms.View.Tile;
+            this.listview.AfterLabelEdit += new System.Windows.Forms.LabelEditEventHandler(this.listview_AfterLabelEdit);
             this.listview.SelectedIndexChanged += new System.EventHandler(this.listview_SelectedIndexChanged);
             this.listview.DoubleClick += new System.EventHandler(this.listview_DoubleClick);
             // 
             // menuBrowser
             // 
             this.menuBrowser.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.menuBrowserRefresh,
-            this.menuBrowserSep0,
+            this.menuNewFolder,
+            this.menuSepNewFolder,
+            this.menuRefresh,
+            this.menuSepView,
             this.menuTiles,
             this.menuLargeIcons,
             this.menuSmallIcons,
             this.menuList,
             this.menuDetails});
             this.menuBrowser.Name = "menu";
-            this.menuBrowser.Size = new System.Drawing.Size(135, 142);
+            this.menuBrowser.Size = new System.Drawing.Size(135, 170);
             this.menuBrowser.Opening += new System.ComponentModel.CancelEventHandler(this.menuBrowser_Opening);
             // 
-            // menuBrowserRefresh
+            // menuNewFolder
             // 
-            this.menuBrowserRefresh.Name = "menuBrowserRefresh";
-            this.menuBrowserRefresh.Size = new System.Drawing.Size(134, 22);
-            this.menuBrowserRefresh.Text = "Refresh";
-            this.menuBrowserRefresh.Click += new System.EventHandler(this.menuBrowserRefresh_Click);
+            this.menuNewFolder.Name = "menuNewFolder";
+            this.menuNewFolder.Size = new System.Drawing.Size(134, 22);
+            this.menuNewFolder.Text = "New Folder";
+            this.menuNewFolder.Click += new System.EventHandler(this.menuNewFolder_Click);
             // 
-            // menuBrowserSep0
+            // menuSepNewFolder
             // 
-            this.menuBrowserSep0.Name = "menuBrowserSep0";
-            this.menuBrowserSep0.Size = new System.Drawing.Size(131, 6);
+            this.menuSepNewFolder.Name = "menuSepNewFolder";
+            this.menuSepNewFolder.Size = new System.Drawing.Size(131, 6);
+            // 
+            // menuRefresh
+            // 
+            this.menuRefresh.Name = "menuRefresh";
+            this.menuRefresh.Size = new System.Drawing.Size(134, 22);
+            this.menuRefresh.Text = "Refresh";
+            this.menuRefresh.Click += new System.EventHandler(this.menuRefresh_Click);
+            // 
+            // menuSepView
+            // 
+            this.menuSepView.Name = "menuSepView";
+            this.menuSepView.Size = new System.Drawing.Size(131, 6);
             // 
             // menuTiles
             // 
@@ -176,8 +193,8 @@
 
         private System.Windows.Forms.ListView listview;
         private System.Windows.Forms.ContextMenuStrip menuBrowser;
-        private System.Windows.Forms.ToolStripMenuItem menuBrowserRefresh;
-        private System.Windows.Forms.ToolStripSeparator menuBrowserSep0;
+        private System.Windows.Forms.ToolStripMenuItem menuRefresh;
+        private System.Windows.Forms.ToolStripSeparator menuSepView;
         private System.Windows.Forms.ToolStripMenuItem menuTiles;
         private System.Windows.Forms.ToolStripMenuItem menuLargeIcons;
         private System.Windows.Forms.ToolStripMenuItem menuSmallIcons;
@@ -186,5 +203,7 @@
         private System.Windows.Forms.ImageList filetypes48;
         private System.Windows.Forms.ImageList filetypes16;
         private BusyIcon busyIcon1;
+        private System.Windows.Forms.ToolStripMenuItem menuNewFolder;
+        private System.Windows.Forms.ToolStripSeparator menuSepNewFolder;
     }
 }

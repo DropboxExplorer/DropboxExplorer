@@ -86,7 +86,6 @@
     <Compile Include="Classes\Dropbox.cs" />
     <Compile Include="Classes\Configuration.cs" />
     <Compile Include="Classes\Exceptions.cs" />
-    <Compile Include="Classes\Options.cs" />
     <Compile Include="UI\BusyIcon.cs">
       <SubType>Component</SubType>
     </Compile>

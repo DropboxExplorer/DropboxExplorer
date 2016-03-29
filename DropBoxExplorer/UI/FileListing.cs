@@ -71,8 +71,22 @@ namespace DropboxExplorer
             FillColumnsToWidth();
             WinAPI.ConfigureListView(listview);
         }
-
-        public Options Options { get; set; } = new Options();
+        
+        /// <summary>
+        /// Show or hide the New Folder button
+        /// </summary>
+        public bool ShowNewFolderButton
+        {
+            get
+            {
+                return menuNewFolder.Visible;
+            }
+            set
+            {
+                menuNewFolder.Visible = value;
+                menuSepNewFolder.Visible = value;
+            }
+        }
 
         /// <summary>
         /// Gets the full path to the selected item
@@ -119,8 +133,8 @@ namespace DropboxExplorer
                         switch (item.ItemType)
                         {
                             case FileSystemObjectType.Folder:
-                                var folder = AddItem(item.Name, "Folder", "", "File folder", "");
-                                folder.Tag = item;
+                                var folder = CreateItem(item.Name, "Folder", "", "File folder", "", item);
+                                listview.Items.Add(folder);
                                 break;
 
                             case FileSystemObjectType.File:
@@ -146,6 +160,14 @@ namespace DropboxExplorer
             while (listview.SelectedItems.Count > 0)
                 listview.SelectedItems[0].Selected = false;
         }
+
+        internal void NewFolder()
+        {
+            ListViewItem folder = CreateItem("New folder", "Folder", "", "File folder", "", null);
+            listview.Items.Add(folder);
+            listview.LabelEdit = true;
+            folder.BeginEdit();
+        }
         #endregion
 
         #region Event handlers
@@ -169,24 +191,45 @@ namespace DropboxExplorer
             ItemDoubleClicked(this, args);
         }
 
-        private void menuBrowser_Opening(object sender, CancelEventArgs e)
+        private async void listview_AfterLabelEdit(object sender, LabelEditEventArgs e)
         {
-            if (this.Options.ShowContextMenu)
+            try
             {
-                View view = listview.View;
-                menuTiles.Checked = (view == View.Tile);
-                menuLargeIcons.Checked = (view == View.LargeIcon);
-                menuSmallIcons.Checked = (view == View.SmallIcon);
-                menuList.Checked = (view == View.List);
-                menuDetails.Checked = (view == View.Details);
+                listview.LabelEdit = false;
+                if (e.Label == null)
+                {
+                    listview.Items.RemoveAt(e.Item);
+                }
+                else
+                {
+                    string path = _CurrentPath;
+                    if (!path.EndsWith("/"))
+                        path += "/";
+                    path += e.Label;
+
+                    using (var dropbox = new DropboxFiles())
+                    {
+                        await dropbox.CreateFolder(path);
+                    }
+                }
             }
-            else
+            catch (Exception ex)
             {
-                e.Cancel = true;
+                ErrorPanel.ShowError(this, ex);
             }
         }
 
-        private async void menuBrowserRefresh_Click(object sender, EventArgs e)
+        private void menuBrowser_Opening(object sender, CancelEventArgs e)
+        {
+            View view = listview.View;
+            menuTiles.Checked = (view == View.Tile);
+            menuLargeIcons.Checked = (view == View.LargeIcon);
+            menuSmallIcons.Checked = (view == View.SmallIcon);
+            menuList.Checked = (view == View.List);
+            menuDetails.Checked = (view == View.Details);
+        }
+
+        private async void menuRefresh_Click(object sender, EventArgs e)
         {
             await NavigateToFolder(_CurrentPath);
         }
@@ -195,6 +238,11 @@ namespace DropboxExplorer
         {
             ToolStripMenuItem item = sender as ToolStripMenuItem;
             listview.View = (View)int.Parse(item.Tag.ToString());
+        }
+
+        private void menuNewFolder_Click(object sender, EventArgs e)
+        {
+            NewFolder();
         }
         #endregion
 
@@ -228,7 +276,7 @@ namespace DropboxExplorer
             }
             return null;
         }
-
+        
         private async Task AddFile(DropboxFiles dropbox, FileSystemObject file)
         {
             const string THUMBNAILS = ".jpg.jpeg.png.tiff.tif.gif.bmp";
@@ -246,28 +294,28 @@ namespace DropboxExplorer
                 filetypes48.Images.Add(ext, WinAPI.GetFileExtraLargeIcon(file.Name));
             }
 
-            var item = AddItem(file.Name, imageKey, file.ClientModified.ToString(), WinAPI.GetFileTypeName(ext), WinAPI.FormatBytes(file.Size));
-            item.Tag = file;
+            var item = CreateItem(file.Name, imageKey, file.ClientModified.ToString(), WinAPI.GetFileTypeName(ext), WinAPI.FormatBytes(file.Size), file);
+            listview.Items.Add(item);
 
             // If current image is based on extension, get the thumbnail
-            if (this.Options.ShowThumbnails)
+            if (THUMBNAILS.Contains(ext) && imageKey == ext)
             {
-                if (THUMBNAILS.Contains(ext) && imageKey == ext)
+                using (var image = await dropbox.GetThumbnail(file.Path))
                 {
-                    using (var image = await dropbox.GetThumbnail(file.Path))
-                    {
-                        Image thumbnail = GetThumbnail(image, filetypes48.ImageSize.Width);
-                        filetypes16.Images.Add(file.Path, WinAPI.GetFileSmallIcon(file.Name));
-                        filetypes48.Images.Add(file.Path, thumbnail);
-                        item.ImageKey = file.Path;
-                    }
+                    Image thumbnail = GetThumbnail(image, filetypes48.ImageSize.Width);
+                    filetypes16.Images.Add(file.Path, WinAPI.GetFileSmallIcon(file.Name));
+                    filetypes48.Images.Add(file.Path, thumbnail);
+                    item.ImageKey = file.Path;
                 }
             }
         }
 
-        private ListViewItem AddItem(string name, string icon, string date, string type, string size)
+        private ListViewItem CreateItem(string name, string icon, string date, string type, string size, object tag)
         {
-            var item = listview.Items.Add(name, icon);
+            ListViewItem item = new ListViewItem();
+            item.Text = name;
+            item.ImageKey = icon;
+            item.Tag = tag;
             item.SubItems.Add(type);
             item.SubItems.Add(size);
             item.SubItems.Add(date);
