@@ -26,12 +26,18 @@ namespace DropboxExplorer
     internal class NavigationBar : ToolStrip
     {
         #region Custom renderer
-        private class BorerlessRenderer : ToolStripProfessionalRenderer
+        private class BorerlessRenderer : ToolStripSystemRenderer
         {
             protected override void OnRenderToolStripBorder(ToolStripRenderEventArgs e)
             {
                 // We don't want a border so don't draw anything
                 //base.OnRenderToolStripBorder(e);
+            }
+            
+            protected override void OnRenderToolStripBackground(ToolStripRenderEventArgs e)
+            {
+                e.Graphics.Clear(Color.White);
+                //base.OnRenderToolStripBackground(e);
             }
         }
         #endregion
@@ -82,13 +88,14 @@ namespace DropboxExplorer
             this.GripStyle = ToolStripGripStyle.Hidden;
             this.Renderer = new BorerlessRenderer();
 
-            _ButtonNew = AddButton("New Folder", "Create a new folder in  the current folder", Properties.Resources.FolderNew, true, _ButtonNew_Click);
-            this.Items.Add(_SeparatorNew = new ToolStripSeparator());
-
             _ButtonBack = AddButton("Back", "Back to previous folder", Properties.Resources.Back, false, _ButtonBack_Click);
+            _ButtonBack.Margin = new Padding(2, 1, 0, 2);
             _ButtonUp = AddButton("Up", "Up to parent folder", Properties.Resources.Up, false, _ButtonUp_Click);
-            this.Items.Add(_SeparatorPath = new ToolStripSeparator());
 
+            this.Items.Add(_SeparatorNew = new ToolStripLabel(" "));
+            _ButtonNew = AddButton("New Folder", "Create a new folder in  the current folder", Properties.Resources.FolderNew, true, _ButtonNew_Click);
+
+            this.Items.Add(_SeparatorPath = new ToolStripLabel(" "));
             _ButtonRoot = AddButton("Dropbox", "Return to root folder", Properties.Resources.Dropbox, true, _ButtonRoot_Click);
         }
         #endregion
@@ -202,6 +209,7 @@ namespace DropboxExplorer
             button.DisplayStyle = (showCaption ? ToolStripItemDisplayStyle.ImageAndText : ToolStripItemDisplayStyle.Image);
             button.ToolTipText = tooltip;
             button.Tag = tag;
+            button.Padding = new Padding(2, 0, 2, 3);
 
             this.Items.Add(button);
             return button;
