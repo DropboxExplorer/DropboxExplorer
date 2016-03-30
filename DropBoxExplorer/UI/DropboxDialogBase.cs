@@ -34,6 +34,7 @@ namespace DropboxExplorer
         
         #region Member variables
         private DialogMode _Mode = DialogMode.Open;
+        private OpenDialogType _DialogType = OpenDialogType.File;
 
         private string _UploadFile = "";
         #endregion
@@ -42,9 +43,44 @@ namespace DropboxExplorer
         internal string Path { get; private set; } = "";
 
         /// <summary>
+        /// Gets the selected item
+        /// </summary>
+        /// <returns>The selected item</returns>
+        public FileSystemObject GetSelectedItem()
+        {
+            return fileBrowser1.GetSelectedItem();
+        }
+
+        /// <summary>
         /// The full Dropbox path to the currently selected file.
         /// </summary>
-        public string SelectedFile { get; private set; } = "";
+        public string SelectedFile
+        {
+            get
+            {
+                FileSystemObject item = GetSelectedItem();
+                if (item == null)
+                    return "";
+                else
+                    return item.Path;
+            }
+        }
+
+        /// <summary>
+        /// The full URL to this path that can be shared
+        /// Only available if the file is shared in Dropbox and this dialog is used to retriev shares
+        /// </summary>
+        public string SelectedFileShareUrl
+        {
+            get
+            {
+                FileSystemObject item = GetSelectedItem();
+                if (item == null)
+                    return "";
+                else
+                    return item.ShareUrl;
+            }
+        }
 
         /// <summary>
         /// If set, the Open dialog will automatically download the chosen file to this local folder
@@ -103,9 +139,10 @@ namespace DropboxExplorer
         #endregion
 
         #region Constructor
-        internal DropboxDialogBase(DialogMode mode)
+        internal DropboxDialogBase(DialogMode mode, OpenDialogType dialogType)
         {
             _Mode = mode;
+            _DialogType = dialogType;
 
             InitializeComponent();
             this.Text = _Mode.ToString();
@@ -114,7 +151,7 @@ namespace DropboxExplorer
             SetFormState(false);
 
             fileBrowser1.ShowNewFolderButton = (mode == DialogMode.Save);
-            fileBrowser1.Initialise();
+            fileBrowser1.Initialise(dialogType);
         }
         #endregion
 
@@ -132,14 +169,14 @@ namespace DropboxExplorer
 
         private void fileBrowser1_FileDoubleClicked(object sender, FileBrowser.ItemSelectedArgs e)
         {
-            FileSelected();
+            FileChosen();
         }
         #endregion
         
         #region Buttons
         private void btnOK_Click(object sender, EventArgs e)
         {
-            FileSelected();
+            FileChosen();
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
@@ -151,9 +188,13 @@ namespace DropboxExplorer
         #region File name textbox
         private void txtFilename_TextChanged(object sender, EventArgs e)
         {
-            string file = System.IO.Path.GetFileName(fileBrowser1.GetSelectedFilePath());
-            if (txtFilename.Text != file)
-                fileBrowser1.ClearSelection();
+            FileSystemObject item = fileBrowser1.GetSelectedItem();
+            if (item != null)
+            {
+                string file = System.IO.Path.GetFileName(item.Path);
+                if (txtFilename.Text != file)
+                    fileBrowser1.ClearSelection();
+            }
         }
         #endregion
         #endregion
@@ -161,6 +202,9 @@ namespace DropboxExplorer
         #region Private methods
         private async Task DownloadSelectedFile()
         {
+            if (_DialogType != OpenDialogType.File)
+                return;
+
             if (string.IsNullOrEmpty(this.DownloadFolder))
                 return;
 
@@ -189,9 +233,8 @@ namespace DropboxExplorer
             SetFormState(true);
         }
 
-        private async void FileSelected()
+        private async void FileChosen()
         {
-            SelectedFile = fileBrowser1.GetSelectedFilePath();
             if (_Mode == DialogMode.Open && !string.IsNullOrEmpty(SelectedFile))
             {
                 await DownloadSelectedFile();

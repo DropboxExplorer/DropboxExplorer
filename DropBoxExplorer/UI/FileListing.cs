@@ -27,6 +27,7 @@ namespace DropboxExplorer
     internal partial class FileListing : UserControl
     {
         private string _CurrentPath = "";
+        private OpenDialogType _DialogType = OpenDialogType.File;
 
         #region Public events
         public class ItemSelectedArgs : EventArgs
@@ -67,8 +68,7 @@ namespace DropboxExplorer
             listview.Columns.Add("Type");
             listview.Columns.Add("Size");
             listview.Columns.Add("Date");
-
-            FillColumnsToWidth();
+            
             WinAPI.ConfigureListView(listview);
         }
         
@@ -89,19 +89,16 @@ namespace DropboxExplorer
         }
 
         /// <summary>
-        /// Gets the full path to the selected item
+        /// Gets the selected item
         /// </summary>
-        internal string SelectedItem
+        public FileSystemObject GetSelectedItem()
         {
-            get
+            if (listview.SelectedItems.Count > 0)
             {
-                FileSystemObject item = GetSelectedObject();
-                if (item != null)
-                {
-                    return item.Path;
-                }
-                return "";
+                var item = listview.SelectedItems[0];
+                return item.Tag as FileSystemObject;
             }
+            return null;
         }
 
         /// <summary>
@@ -109,9 +106,10 @@ namespace DropboxExplorer
         /// </summary>
         /// <param name="path">The path to navigate to</param>
         /// <returns>The result of the asynchronous operation</returns>
-        internal async Task NavigateToFolder(string path)
+        internal async Task NavigateToFolder(OpenDialogType dialogType, string path)
         {
             _CurrentPath = DropboxFiles.FixPath(path);
+            _DialogType = dialogType;
 
             busyIcon1.Show();
             busyIcon1.BringToFront();
@@ -123,7 +121,7 @@ namespace DropboxExplorer
 
                 using (var dropbox = new DropboxFiles())
                 {
-                    var items = await dropbox.GetFolderContents(_CurrentPath);
+                    var items = await dropbox.GetFolderContents(_CurrentPath, _DialogType);
 
                     // We might have ended up in the async method multiple times so lets clear again just in case
                     listview.Items.Clear();
@@ -231,13 +229,18 @@ namespace DropboxExplorer
 
         private async void menuRefresh_Click(object sender, EventArgs e)
         {
-            await NavigateToFolder(_CurrentPath);
+            filetypes16.Images.Clear();
+            filetypes48.Images.Clear();
+            await NavigateToFolder(_DialogType, _CurrentPath);
         }
 
         private void menuView_Click(object sender, EventArgs e)
         {
             ToolStripMenuItem item = sender as ToolStripMenuItem;
             listview.View = (View)int.Parse(item.Tag.ToString());
+
+            if (listview.View == View.Details)
+                FillColumnsToWidth();
         }
 
         private void menuNewFolder_Click(object sender, EventArgs e)
@@ -256,19 +259,9 @@ namespace DropboxExplorer
             }
         }
 
-        private FileSystemObject GetSelectedObject()
-        {
-            if (listview.SelectedItems.Count > 0)
-            {
-                var item = listview.SelectedItems[0];
-                return item.Tag as FileSystemObject;
-            }
-            return null;
-        }
-
         private ItemSelectedArgs GetSelectedItemArgs()
         {
-            FileSystemObject item = GetSelectedObject();
+            FileSystemObject item = GetSelectedItem();
             if (item != null)
             {
                 ItemSelectedArgs args = new ItemSelectedArgs(item);
@@ -283,28 +276,35 @@ namespace DropboxExplorer
 
             string ext = System.IO.Path.GetExtension(file.Name);
             string imageKey = ext;
-
+            
             if (filetypes16.Images.ContainsKey(file.Path))
             {
                 imageKey = file.Path;
             }
-            else if (!filetypes16.Images.ContainsKey(ext))
+            else if (!filetypes16.Images.ContainsKey(imageKey))
             {
-                filetypes16.Images.Add(ext, WinAPI.GetFileSmallIcon(file.Name));
-                filetypes48.Images.Add(ext, WinAPI.GetFileExtraLargeIcon(file.Name));
+                Bitmap small = WinAPI.GetFileSmallIcon(file.Name);
+                filetypes16.Images.Add(imageKey, small);
+
+                Bitmap large = WinAPI.GetFileExtraLargeIcon(file.Name);
+                filetypes48.Images.Add(imageKey, large);
             }
 
             var item = CreateItem(file.Name, imageKey, file.ClientModified.ToString(), WinAPI.GetFileTypeName(ext), WinAPI.FormatBytes(file.Size), file);
             listview.Items.Add(item);
 
             // If current image is based on extension, get the thumbnail
-            if (THUMBNAILS.Contains(ext) && imageKey == ext)
+            if (THUMBNAILS.Contains(ext) && imageKey.StartsWith(ext))
             {
                 using (var image = await dropbox.GetThumbnail(file.Path))
                 {
-                    Image thumbnail = GetThumbnail(image, filetypes48.ImageSize.Width);
-                    filetypes16.Images.Add(file.Path, WinAPI.GetFileSmallIcon(file.Name));
+                    Bitmap thumbnail = GetThumbnail(image, filetypes48.ImageSize.Width);
+
+                    Bitmap small = WinAPI.GetFileSmallIcon(file.Name);
+                    filetypes16.Images.Add(file.Path, small);
+                    
                     filetypes48.Images.Add(file.Path, thumbnail);
+
                     item.ImageKey = file.Path;
                 }
             }
@@ -322,7 +322,7 @@ namespace DropboxExplorer
             return item;
         }
 
-        private Image GetThumbnail(Image source, int size)
+        private Bitmap GetThumbnail(Image source, int size)
         {
             // Calculate our thumbnail size
             Rectangle ThumbRect = new Rectangle(0, 0, size, size);
@@ -334,16 +334,16 @@ namespace DropboxExplorer
             else if (source.Width > source.Height)
             {
                 TargetRect.Height = (int)((double)source.Height * (double)size / (double)source.Width);
-                TargetRect.Y = ThumbRect.Height - TargetRect.Height;
+                TargetRect.Y = (ThumbRect.Height - TargetRect.Height) / 2;
             }
             else if (source.Width < source.Height)
             {
                 TargetRect.Width = (int)((double)source.Width * (double)size / (double)source.Height);
-                TargetRect.X = ThumbRect.Width - TargetRect.Width;
+                TargetRect.X = (ThumbRect.Width - TargetRect.Width) / 2;
             }
 
             // Create the thumbnail
-            Image thumb = new Bitmap(ThumbRect.Width, ThumbRect.Height);
+            Bitmap thumb = new Bitmap(ThumbRect.Width, ThumbRect.Height);
             using (Graphics g = Graphics.FromImage(thumb))
             {
                 g.Clear(Color.FromKnownColor(KnownColor.Window));
@@ -351,6 +351,14 @@ namespace DropboxExplorer
                     g.DrawImage(source, TargetRect);
             }
             return thumb;
+        }
+
+        private void AddShareOverlay(Bitmap image, Image overlay)
+        {
+            using (Graphics g = Graphics.FromImage(image))
+            {
+                g.DrawImageUnscaled(overlay, 0, 0);
+            }
         }
         #endregion
     }

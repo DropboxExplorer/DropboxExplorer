@@ -30,4 +30,15 @@ namespace DropboxExplorer
         /// </summary>
         public static string DropboxAuthorizationUrl { get; set; } = "https://www.dropbox.com/1/oauth2/redirect_receiver";
     }
+    
+    /// <summary>
+    /// Determines which mode the Open Dialog works in
+    /// Either provides direct access to files or accesses the share URLs associated with those files
+    /// </summary>
+    public enum OpenDialogType
+    {
+        File,
+        TeamShare,
+        PublicShare
+    }
 }

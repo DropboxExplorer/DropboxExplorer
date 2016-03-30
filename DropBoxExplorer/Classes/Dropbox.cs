@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 
 using Dropbox.Api;
 using Dropbox.Api.Files;
+using Dropbox.Api.Sharing;
 using System.Collections.Generic;
 
 namespace DropboxExplorer
@@ -126,30 +127,66 @@ namespace DropboxExplorer
         //{
         //    return _Dropbox.Files.ListFolderAsync(path);
         //}
-        public async Task<FileSystemObjects> GetFolderContents(string path)
+        public async Task<FileSystemObjects> GetFolderContents(string path, OpenDialogType dialogType)
         {
             FileSystemObjects items = new FileSystemObjects();
-
-            // Get all items
+            Dictionary<string, SharedLinkMetadata> shares = new Dictionary<string, SharedLinkMetadata>();
+            
+            #region Get all file system items
             IList<Metadata> entries = null;
-            var operation = Task.Factory.StartNew(() =>
+            var operationContents = Task.Factory.StartNew(() =>
             {
                 Task<ListFolderResult> results = _Dropbox.Files.ListFolderAsync(path);
                 entries = results.Result.Entries;
             });
-            await operation;
-            
-            // Process folders
+            await operationContents;
+            #endregion
+
+            #region Get all shares if required
+            if (dialogType != OpenDialogType.File)
+            {
+                IList<SharedLinkMetadata> links = null;
+                var operationShares = Task.Factory.StartNew(() =>
+                {
+                    Task<ListSharedLinksResult> results = _Dropbox.Sharing.ListSharedLinksAsync(null);
+                    links = results.Result.Links;
+                });
+                await operationShares;
+
+                foreach (var link in links)
+                {
+                    // Only add one share per item
+                    if (!shares.ContainsKey(link.PathLower))
+                    {
+                        // If we want public links and this is a public link then add it
+                        if (dialogType == OpenDialogType.PublicShare && link.LinkPermissions.ResolvedVisibility.IsPublic)
+                        {
+                            shares.Add(link.PathLower, link);
+                        }
+
+                        // If we want team links and this is a public or team link then add it
+                        else if (dialogType == OpenDialogType.TeamShare && (link.LinkPermissions.ResolvedVisibility.IsPublic || link.LinkPermissions.ResolvedVisibility.IsTeamOnly))
+                        {
+                            shares.Add(link.PathLower, link);
+                        }
+                    }
+                }
+            }
+            #endregion
+
+            #region Process folders
             foreach (var result in entries.Where(i => i.IsFolder))
             {
                 FileSystemObject item = new FileSystemObject();
                 item.ItemType = FileSystemObjectType.Folder;
                 item.Name = result.Name;
                 item.Path = result.PathLower;
+                item.ShareUrl = "";
                 items.Add(item);
             }
+            #endregion
 
-            // Process files
+            #region Process files
             foreach (var result in entries.Where(i => i.IsFile))
             {
                 FileSystemObject item = new FileSystemObject();
@@ -158,9 +195,20 @@ namespace DropboxExplorer
                 item.Path = result.PathLower;
                 item.ClientModified = result.AsFile.ClientModified;
                 item.Size = result.AsFile.Size;
-                items.Add(item);
+
+                if (dialogType == OpenDialogType.File)
+                {
+                    item.ShareUrl = "";
+                    items.Add(item);
+                }
+                else if (shares.ContainsKey(result.PathLower))
+                {
+                    item.ShareUrl = shares[result.PathLower].Url;
+                    items.Add(item);
+                }
             }
-            
+            #endregion
+
             return items;
         }
         

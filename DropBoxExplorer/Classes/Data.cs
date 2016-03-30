@@ -30,7 +30,7 @@ namespace DropboxExplorer
     /// <summary>
     /// Encapsulates an item in a file system
     /// </summary>
-    internal class FileSystemObject
+    public class FileSystemObject
     {
         /// <summary>
         /// The type of the item
@@ -47,6 +47,8 @@ namespace DropboxExplorer
         public DateTime ClientModified { get; internal set; }
         
         public ulong Size { get; internal set; }
+
+        public string ShareUrl { get; internal set; }
     }
 
     /// <summary>

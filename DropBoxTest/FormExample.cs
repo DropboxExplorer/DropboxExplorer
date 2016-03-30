@@ -74,7 +74,7 @@ namespace DropboxExplorer.Test
         {
             if (Directory.Exists(txtDownloadFolder.Text))
             {
-                using (DropboxDialogBase dlg = new OpenDropboxDialog())
+                using (DropboxDialogBase dlg = new OpenDropboxDialog(OpenDialogType.File))
                 {
                     dlg.DownloadFolder = txtDownloadFolder.Text;
 
@@ -94,7 +94,7 @@ namespace DropboxExplorer.Test
         #region Open Dialog - Manual Download
         private void btnOpenDialogManualDownload_Click(object sender, EventArgs e)
         {
-            using (DropboxDialogBase dlg = new OpenDropboxDialog())
+            using (DropboxDialogBase dlg = new OpenDropboxDialog(OpenDialogType.File))
             {
                 if (dlg.ShowDialog(this) == DialogResult.OK)
                 {

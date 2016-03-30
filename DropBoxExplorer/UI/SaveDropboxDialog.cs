@@ -23,9 +23,8 @@ namespace DropboxExplorer
         /// <summary>
         /// Initializes an instance of the DropboxExplorer.SaveDropboxDialog class.
         /// </summary>
-        /// <param name="appKey">The Dropbox App Key as defined in a Dropbox app</param>
         public SaveDropboxDialog()
-            : base(DialogMode.Save)
+            : base(DialogMode.Save, OpenDialogType.File)
         {
         }
     }

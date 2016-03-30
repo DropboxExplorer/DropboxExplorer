@@ -23,9 +23,9 @@ namespace DropboxExplorer
         /// <summary>
         /// Initializes an instance of the DropboxExplorer.OpenDropboxDialog class.
         /// </summary>
-        /// <param name="appKey">The Dropbox App Key as defined in a Dropbox app</param>
-        public OpenDropboxDialog()
-            : base(DialogMode.Open)
+        /// <param name="dialogType">Specifies the type of open dialog. Either working with files directly and downloading them or working with shared links to those files.</param>
+        public OpenDropboxDialog(OpenDialogType dialogType = OpenDialogType.File)
+            : base(DialogMode.Open, dialogType)
         {
         }
     }

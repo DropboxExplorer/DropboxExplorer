@@ -28,6 +28,10 @@ namespace DropboxExplorer
     /// </remarks>
     public partial class FileBrowser : UserControl
     {
+        #region Member variables
+        private OpenDialogType _DialogType = OpenDialogType.File;
+        #endregion
+
         #region Public properties
         internal string Path { get; private set; } = "";
         
@@ -91,9 +95,11 @@ namespace DropboxExplorer
         /// <summary>
         /// Initialises the control by navigating to the Dropbox login page or the root folder if already authorized
         /// </summary>
-        public async void Initialise(string initialPath = "")
+        public async void Initialise(OpenDialogType dialogType, string initialPath = "")
         {
+            _DialogType = dialogType;
             Path = initialPath;
+
             if (string.IsNullOrEmpty(DropboxAuthorization.AccessToken))
             {
                 login.Initialise();
@@ -107,12 +113,12 @@ namespace DropboxExplorer
         }
 
         /// <summary>
-        /// Gets the full path to the selected item
+        /// Gets the selected item
         /// </summary>
-        /// <returns>The full path to the selected item</returns>
-        public string GetSelectedFilePath()
+        /// <returns>The selected item</returns>
+        public FileSystemObject GetSelectedItem()
         {
-            return listing.SelectedItem;
+            return listing.GetSelectedItem();
         }
 
         /// <summary>
@@ -191,7 +197,7 @@ namespace DropboxExplorer
         {
             Path = path;
             toolbar.SetPath(path);
-            await listing.NavigateToFolder(path);
+            await listing.NavigateToFolder(_DialogType, path);
 
             if (PathChanged != null)
             {
