@@ -222,6 +222,14 @@ namespace DropboxExplorer
             }
         }
 
+        private async void listview_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.F5)
+            {
+                await ForceRefresh();
+            }
+        }
+
         private void menuBrowser_Opening(object sender, CancelEventArgs e)
         {
             View view = listview.View;
@@ -234,8 +242,7 @@ namespace DropboxExplorer
 
         private async void menuRefresh_Click(object sender, EventArgs e)
         {
-            InitialiseImageLists();
-            await NavigateToFolder(_DialogType, _CurrentPath);
+            await ForceRefresh();
         }
 
         private void menuView_Click(object sender, EventArgs e)
@@ -254,6 +261,12 @@ namespace DropboxExplorer
         #endregion
 
         #region Private methods
+        private async Task ForceRefresh()
+        {
+            InitialiseImageLists();
+            await NavigateToFolder(_DialogType, _CurrentPath);
+        }
+
         private void InitialiseImageLists()
         {
             filetypes16.Images.Clear();

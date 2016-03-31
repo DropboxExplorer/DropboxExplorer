@@ -68,6 +68,7 @@
             this.listview.AfterLabelEdit += new System.Windows.Forms.LabelEditEventHandler(this.listview_AfterLabelEdit);
             this.listview.SelectedIndexChanged += new System.EventHandler(this.listview_SelectedIndexChanged);
             this.listview.DoubleClick += new System.EventHandler(this.listview_DoubleClick);
+            this.listview.KeyUp += new System.Windows.Forms.KeyEventHandler(this.listview_KeyUp);
             // 
             // menuBrowser
             // 
