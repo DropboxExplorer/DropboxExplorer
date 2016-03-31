@@ -55,14 +55,8 @@ namespace DropboxExplorer
         public FileListing()
         {
             InitializeComponent();
-            
-            filetypes16.Images.Clear();
-            filetypes16.Images.Add("Folder", Properties.Resources.Folder);
-            filetypes16.Images.Add("File", Properties.Resources.File);
 
-            filetypes48.Images.Clear();
-            filetypes48.Images.Add("Folder", Properties.Resources.Folder48);
-            filetypes48.Images.Add("File", Properties.Resources.File48);
+            InitialiseImageLists();
 
             listview.Columns.Add("Name");
             listview.Columns.Add("Type");
@@ -71,7 +65,7 @@ namespace DropboxExplorer
             
             WinAPI.ConfigureListView(listview);
         }
-        
+
         /// <summary>
         /// Show or hide the New Folder button
         /// </summary>
@@ -240,8 +234,7 @@ namespace DropboxExplorer
 
         private async void menuRefresh_Click(object sender, EventArgs e)
         {
-            filetypes16.Images.Clear();
-            filetypes48.Images.Clear();
+            InitialiseImageLists();
             await NavigateToFolder(_DialogType, _CurrentPath);
         }
 
@@ -261,6 +254,17 @@ namespace DropboxExplorer
         #endregion
 
         #region Private methods
+        private void InitialiseImageLists()
+        {
+            filetypes16.Images.Clear();
+            filetypes16.Images.Add("Folder", Properties.Resources.Folder);
+            filetypes16.Images.Add("File", Properties.Resources.File);
+
+            filetypes48.Images.Clear();
+            filetypes48.Images.Add("Folder", Properties.Resources.Folder48);
+            filetypes48.Images.Add("File", Properties.Resources.File48);
+        }
+
         private void FillColumnsToWidth()
         {
             int width = this.Width / listview.Columns.Count;

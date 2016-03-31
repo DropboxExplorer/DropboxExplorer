@@ -205,7 +205,12 @@ namespace DropboxExplorer
         #region Helper methods
         private ToolStripItem AddButton(string caption, string tooltip, Image icon, bool showCaption, EventHandler eventHandler, string tag = "")
         {
-            ToolStripButton button = new ToolStripButton(caption, icon, eventHandler);
+            //ToolStripSplitButton button = new ToolStripSplitButton();
+            ToolStripButton button = new ToolStripButton();
+
+            button.Text = caption;
+            button.Image = icon;
+            button.Click += eventHandler;
             button.DisplayStyle = (showCaption ? ToolStripItemDisplayStyle.ImageAndText : ToolStripItemDisplayStyle.Image);
             button.ToolTipText = tooltip;
             button.Tag = tag;
