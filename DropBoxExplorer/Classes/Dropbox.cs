@@ -255,11 +255,11 @@ namespace DropboxExplorer
         /// <param name="dropboxFilePath">The path to save the upload as within Dropbox</param>
         /// <param name="localFilePath">The local file to upload</param>
         /// <returns>The result of the asynchronous operation</returns>
-        public async Task UploadFile(string dropboxFilePath, string localFilePath)
+        public async Task UploadFile(string dropboxFilePath, string localFilePath, bool overwrite)
         {
             using (System.IO.FileStream stream = new System.IO.FileStream(localFilePath, System.IO.FileMode.Open))
             {
-                await _Dropbox.Files.UploadAsync(dropboxFilePath, WriteMode.Add.Instance, true, body: stream);
+                await _Dropbox.Files.UploadAsync(dropboxFilePath, WriteMode.Add.Instance, !overwrite, body: stream);
             }
         }
 

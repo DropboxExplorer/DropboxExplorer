@@ -19,6 +19,13 @@ using System.Windows.Forms;
 
 namespace DropboxExplorer
 {
+    public enum FileOverwriteOptions
+    {
+        NewName,
+        Overwrite,        
+        Prompt
+    }
+
     /// <summary>
     /// The base class used for displaying Dropbox dialog boxes on the screen.
     /// </summary>
@@ -41,6 +48,8 @@ namespace DropboxExplorer
 
         #region Public interface
         internal string Path { get; private set; } = "";
+
+        public FileOverwriteOptions OverwriteOptions { get; set; } = FileOverwriteOptions.NewName;
 
         /// <summary>
         /// Gets the selected item
@@ -123,7 +132,7 @@ namespace DropboxExplorer
         /// </summary>
         /// <param name="localFilePath">The full local path to the file to upload to the current Dropbox target. Dropbox will generate a new file name if required.</param>
         /// <returns>An asynchronous operation result.</returns>
-        public async Task UploadFileToCurrentFolder(string localFilePath)
+        public async Task UploadFileToCurrentFolder(string localFilePath, bool overwrite)
         {
             if (!System.IO.File.Exists(localFilePath))
                 throw new System.IO.FileNotFoundException("File to upload not found", localFilePath);
@@ -134,7 +143,7 @@ namespace DropboxExplorer
             if (!dropboxFilePath.StartsWith("/"))
                 dropboxFilePath = "/" + dropboxFilePath;
             
-            await fileTransfer1.UploadFileUI(dropboxFilePath, localFilePath);
+            await fileTransfer1.UploadFileUI(dropboxFilePath, localFilePath, overwrite);
         }
         #endregion
 
@@ -200,16 +209,16 @@ namespace DropboxExplorer
         #endregion
 
         #region Private methods
-        private async Task DownloadSelectedFile()
+        private async Task<bool> DownloadSelectedFile()
         {
-            if (_DialogType != OpenDialogType.File)
-                return;
-
-            if (string.IsNullOrEmpty(this.DownloadFolder))
-                return;
-
             if (string.IsNullOrEmpty(this.SelectedFile))
                 throw new NoFileSelectedException();
+
+            if (_DialogType != OpenDialogType.File)
+                return true;
+
+            if (string.IsNullOrEmpty(this.DownloadFolder))
+                return true;
 
             fileTransfer1.Show();
             fileBrowser1.Hide();
@@ -218,32 +227,69 @@ namespace DropboxExplorer
             this.DownloadedFile = GetUniqueLocalFileName();
             await DownloadSelectedFile(this.DownloadedFile);
             SetFormState(true);
+
+            return true;
         }
 
-        private async Task UploadSelectedFile()
+        private async Task<bool> UploadSelectedFile()
         {
             if (string.IsNullOrEmpty(this.UploadFile))
-                return;
+                return true;
             
+            #region Decide whether to overwrite file
+            bool overwrite = true;
+            switch (OverwriteOptions)
+            {
+                case FileOverwriteOptions.NewName:
+                    overwrite = false;
+                    break;
+
+                case FileOverwriteOptions.Overwrite:
+                    overwrite = true;
+                    break;
+
+                case FileOverwriteOptions.Prompt:
+                    if (fileBrowser1.CurrentPathContains(txtFilename.Text))
+                    {
+                        string msg = string.Format("{0} already exists.\r\nDo you want to replace it?", txtFilename.Text);
+                        DialogResult answer = MessageBox.Show(this, msg, this.Text, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button2);
+                        switch (answer)
+                        {
+                            case DialogResult.Yes:
+                                overwrite = true;
+                                break;
+                            case DialogResult.No:
+                                overwrite = false;
+                                break;
+                            default:
+                                return false;
+                        }
+                    }
+                    break;
+            }
+            #endregion
+
             fileTransfer1.Show();
             fileBrowser1.Hide();
 
             SetFormState(false);
-            await UploadFileToCurrentFolder(this.UploadFile);
+            await UploadFileToCurrentFolder(this.UploadFile, overwrite);
             SetFormState(true);
+
+            return true;
         }
 
         private async void FileChosen()
         {
             if (_Mode == DialogMode.Open && !string.IsNullOrEmpty(SelectedFile))
             {
-                await DownloadSelectedFile();
-                this.DialogResult = DialogResult.OK;
+                if (await DownloadSelectedFile())
+                    this.DialogResult = DialogResult.OK;
             }
             else if (_Mode == DialogMode.Save && txtFilename.Text.Length > 0)
             {
-                await UploadSelectedFile();
-                this.DialogResult = DialogResult.OK;
+                if (await UploadSelectedFile())
+                    this.DialogResult = DialogResult.OK;
             }
         }
 

@@ -204,6 +204,11 @@ namespace DropboxExplorer
                 PathChanged(this, new ItemSelectedArgs(path));
             }
         }
+
+        internal bool CurrentPathContains(string fileName)
+        {
+            return listing.CurrentPathContains(fileName);
+        }
         #endregion
     }
 }

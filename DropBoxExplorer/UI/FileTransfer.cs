@@ -74,7 +74,7 @@ namespace DropboxExplorer
         /// <param name="dropboxFilePath">The target location for the upload</param>
         /// <param name="localFilePath">The local file to upload</param>
         /// <returns>The result of the asynchronous operation</returns>
-        internal async Task UploadFileUI(string dropboxFilePath, string localFilePath)
+        internal async Task UploadFileUI(string dropboxFilePath, string localFilePath, bool overwrite)
         {
             try
             {
@@ -87,7 +87,7 @@ namespace DropboxExplorer
 
                 using (var dropbox = new DropboxFiles())
                 {
-                    await dropbox.UploadFile(dropboxFilePath, localFilePath);
+                    await dropbox.UploadFile(dropboxFilePath, localFilePath, overwrite);
                 }
 
                 while (DateTime.Now < timeout)

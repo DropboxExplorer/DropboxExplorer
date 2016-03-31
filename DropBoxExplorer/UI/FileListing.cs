@@ -166,6 +166,17 @@ namespace DropboxExplorer
             listview.LabelEdit = true;
             folder.BeginEdit();
         }
+        
+        internal bool CurrentPathContains(string fileName)
+        {
+            foreach(ListViewItem item in listview.Items)
+            {
+                if (item.Text.Equals(fileName, StringComparison.CurrentCultureIgnoreCase))
+                    return true;
+            }
+
+            return false;
+        }
         #endregion
 
         #region Event handlers
