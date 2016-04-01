@@ -14,6 +14,7 @@ limitations under the License.
 */
 
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -43,9 +44,10 @@ namespace DropboxExplorer
         {
             try
             {
-                lblAction.Text = "Downloading file";
-                lblSource.Text = dropboxFilePath;
-                lblDestination.Text = localFilePath;
+                lblAction.Text = "Downloading:";
+                lblFileName.Text = Path.GetFileName(localFilePath);
+                lblSource.Text = Path.GetDirectoryName(dropboxFilePath);
+                lblDestination.Text = Path.GetDirectoryName(localFilePath);
                 this.Show();
                 this.BringToFront();
 
@@ -78,7 +80,7 @@ namespace DropboxExplorer
         {
             try
             {
-                lblAction.Text = "Uploading file";
+                lblAction.Text = "Uploading:";
                 lblSource.Text = localFilePath;
                 lblDestination.Text = dropboxFilePath;
                 this.Show();
@@ -104,6 +106,11 @@ namespace DropboxExplorer
 
         private void FileTransfer_Resize(object sender, EventArgs e)
         {
+            const int MAX_WIDTH = 400;
+
+            // Fit within parent to maximum width
+            tableLayoutPanel1.Width = Math.Min(this.Width, MAX_WIDTH);
+
             // Make sure controls are centered due to being unreliable with font scalling in Windows
             busyIcon1.Left = (this.Width - busyIcon1.Width) / 2;
             tableLayoutPanel1.Left = (this.Width - tableLayoutPanel1.Width) / 2;
