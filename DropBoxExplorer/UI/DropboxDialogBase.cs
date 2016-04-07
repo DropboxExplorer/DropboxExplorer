@@ -187,10 +187,7 @@ namespace DropboxExplorer
             _DialogType = dialogType;
 
             InitializeComponent();
-
-            WinAPI.ConfigureCombobox(cboFilter);
             
-
             this.Text = _Mode.ToString();
             btnOK.Text = _Mode.ToString();
 

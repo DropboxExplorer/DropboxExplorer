@@ -552,15 +552,6 @@ namespace DropboxExplorer
         }
         #endregion
 
-        #region Combobox
-        private const Int32 CB_SETITEMHEIGHT = 0x153;
-
-        internal static void ConfigureCombobox(ComboBox combobox)
-        {
-            SendMessage(combobox.Handle, CB_SETITEMHEIGHT, -1, 18);
-        }
-        #endregion
-
         #region Cursors
         internal const int WM_SETCURSOR = 0x0020;
         private const int IDC_HAND = 32649;
