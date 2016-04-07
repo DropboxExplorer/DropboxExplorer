@@ -52,6 +52,13 @@ namespace DropboxExplorer
                     listing.ShowNewFolderButton = value;
             }
         }
+
+        public async void SetFilter(string filter)
+        {
+            listing.Filter = filter;
+            if (listing.Visible)
+                await listing.ForceRefresh();
+        }
         #endregion
 
         #region Public events

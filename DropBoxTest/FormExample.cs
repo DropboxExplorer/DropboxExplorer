@@ -77,6 +77,7 @@ namespace DropboxExplorer.Test
                 using (DropboxDialogBase dlg = new OpenDropboxDialog(OpenDialogType.File))
                 {
                     dlg.DownloadFolder = txtDownloadFolder.Text;
+                    //dlg.Filter = "Word Documents (*.docx)|*.docx|All Files (*.*)|*.*";
 
                     if (dlg.ShowDialog(this) == DialogResult.OK)
                     {

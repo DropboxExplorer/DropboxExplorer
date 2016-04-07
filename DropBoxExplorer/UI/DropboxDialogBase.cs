@@ -14,6 +14,7 @@ limitations under the License.
 */
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -40,14 +41,46 @@ namespace DropboxExplorer
         #endregion
         
         #region Member variables
+        private class FilterItem
+        {
+            public string Text { get; set; }
+            public string Filter { get; set; }
+
+            public FilterItem(string text, string filter)
+            {
+                Text = text;
+                Filter = filter;
+            }
+
+            public override string ToString()
+            {
+                return Text;
+            }
+        }
+
         private DialogMode _Mode = DialogMode.Open;
         private OpenDialogType _DialogType = OpenDialogType.File;
-
+        private string _Filter = "";
+        private List<FilterItem> _Filters = null;
         private string _UploadFile = "";
         #endregion
 
         #region Public interface
         internal string Path { get; private set; } = "";
+
+        public string Filter
+        {
+            get
+            {
+                return _Filter;
+            }
+            set
+            {
+                _Filter = value;
+                ProcessFilterString();
+                cboFilter.Visible = (_Filters != null && _Filters.Count > 0);
+            }
+        }
 
         public FileOverwriteOptions OverwriteOptions { get; set; } = FileOverwriteOptions.NewName;
 
@@ -154,11 +187,15 @@ namespace DropboxExplorer
             _DialogType = dialogType;
 
             InitializeComponent();
+
+            WinAPI.ConfigureCombobox(cboFilter);
+            
+
             this.Text = _Mode.ToString();
             btnOK.Text = _Mode.ToString();
 
             SetFormState(false);
-
+            
             fileBrowser1.ShowNewFolderButton = (mode == DialogMode.Save);
             fileBrowser1.Initialise(dialogType);
         }
@@ -204,6 +241,17 @@ namespace DropboxExplorer
                 if (txtFilename.Text != file)
                     fileBrowser1.ClearSelection();
             }
+        }
+        #endregion
+
+        #region Filter combobox
+        private void cboFilter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            FilterItem filter = cboFilter.SelectedItem as FilterItem;
+            if (filter == null)
+                fileBrowser1.SetFilter("");
+            else
+                fileBrowser1.SetFilter(filter.Filter);
         }
         #endregion
         #endregion
@@ -319,7 +367,39 @@ namespace DropboxExplorer
         {
             lblFilename.Enabled = enabled;
             txtFilename.Enabled = enabled;
+            cboFilter.Enabled = enabled;
             btnOK.Enabled = enabled;
+        }
+
+        private void ProcessFilterString()
+        {
+            _Filters = null;
+            cboFilter.Items.Clear();
+
+            if (!string.IsNullOrEmpty(_Filter))
+            {
+                string[] parts = _Filter.Split('|');
+                if (parts.Length < 2 || parts.Length % 2 != 0)
+                    throw new ArgumentException("Filter string must contain an even number of components");
+
+                _Filters = new List<FilterItem>();
+                for (int i = 0; i < parts.Length; i += 2)
+                {
+                    _Filters.Add(new FilterItem(parts[i].Trim(), parts[i + 1].Trim()));
+                }
+                
+                foreach (var item in _Filters)
+                {
+                    cboFilter.Items.Add(item);
+                }
+                cboFilter.SelectedIndex = 0;
+            }
+        }
+
+        private void CboFilter_MeasureItem(object sender, MeasureItemEventArgs e)
+        {
+            e.ItemHeight = 25;
+            e.ItemWidth = 100;
         }
         #endregion
     }

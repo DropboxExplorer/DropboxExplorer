@@ -16,6 +16,7 @@ limitations under the License.
 using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -82,6 +83,8 @@ namespace DropboxExplorer
             }
         }
 
+        public string Filter { get; set; }
+
         /// <summary>
         /// Gets the selected item
         /// </summary>
@@ -130,7 +133,10 @@ namespace DropboxExplorer
                                 break;
 
                             case FileSystemObjectType.File:
-                                var task = AddFile(dropbox, item);
+                                if (IncludeFile(item))
+                                {
+                                    var task = AddFile(dropbox, item);
+                                }
                                 break;
                         }
                     }
@@ -170,6 +176,12 @@ namespace DropboxExplorer
             }
 
             return false;
+        }
+
+        internal async Task ForceRefresh()
+        {
+            InitialiseImageLists();
+            await NavigateToFolder(_DialogType, _CurrentPath);
         }
         #endregion
 
@@ -261,12 +273,6 @@ namespace DropboxExplorer
         #endregion
 
         #region Private methods
-        private async Task ForceRefresh()
-        {
-            InitialiseImageLists();
-            await NavigateToFolder(_DialogType, _CurrentPath);
-        }
-
         private void InitialiseImageLists()
         {
             filetypes16.Images.Clear();
@@ -380,12 +386,55 @@ namespace DropboxExplorer
             }
             return thumb;
         }
-
-        private void AddShareOverlay(Bitmap image, Image overlay)
+        
+        private bool IncludeFile(FileSystemObject file)
         {
-            using (Graphics g = Graphics.FromImage(image))
+            if (string.IsNullOrEmpty(Filter))
+                return true;
+
+            return WildcardLike(file.Name, Filter);
+        }
+
+        private static bool WildcardLike(string InputString, string Pattern)
+        {
+            // Cope with empty pattern
+            if (Pattern.Length == 0 && InputString.Length > 0)
             {
-                g.DrawImageUnscaled(overlay, 0, 0);
+                return false;
+            }
+            else if (Pattern.Contains("*"))
+            {
+                // Replace simple asterix with RegEx version
+                Pattern = Pattern.Replace(@"\", @"\\");
+                Pattern = Pattern.Replace(@".", @"\.");
+                Pattern = Pattern.Replace(@"*", @".*");
+                Pattern = Pattern.Replace(@"[", @"\[");
+                Pattern = Pattern.Replace(@"]", @"\]");
+                Pattern = Pattern.Replace(@"(", @"\(");
+                Pattern = Pattern.Replace(@")", @"\)");
+                Pattern = Pattern.Replace(@"$", @"\$");
+                Pattern = Pattern.Replace(@"^", @"\^");
+                Pattern = Pattern.Replace(@"?", @"\?");
+                Pattern = Pattern.Replace(@"<", @"\<");
+                Pattern = Pattern.Replace(@">", @"\>");
+                Pattern = Pattern.Replace(@"{", @"\{");
+                Pattern = Pattern.Replace(@"}", @"\}");
+                Pattern = Pattern.Replace(@"+", @"\+");
+                Pattern = Pattern.Replace(@"-", @"\-");
+
+                // If the user isn't searching with an asterix at the start or end, include the no characters allowed option.
+                if (!Pattern.StartsWith(".*"))
+                    Pattern = "^" + Pattern;
+                if (!Pattern.EndsWith(".*"))
+                    Pattern = Pattern + "$";
+
+                // Create RegEx
+                return Regex.IsMatch(InputString, Pattern, RegexOptions.IgnoreCase);
+            }
+            else
+            {
+                // Do a normal string comparisson
+                return (String.Compare(InputString, Pattern, true) == 0);
             }
         }
         #endregion
