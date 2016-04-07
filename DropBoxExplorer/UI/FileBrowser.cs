@@ -157,7 +157,7 @@ namespace DropboxExplorer
             switch (e.Item.ItemType)
             {
                 case FileSystemObjectType.Folder:
-                    await NavigateToFolder(e.Item.Path);
+                    await NavigateToFolder(e.Item.Path, true);
                     break;
 
                 case FileSystemObjectType.File:
@@ -178,7 +178,7 @@ namespace DropboxExplorer
 
         private async void toolbar_PathSelected(object sender, NavigationBar.PathSelectedArgs e)
         {
-            await NavigateToFolder(e.Path);
+            await NavigateToFolder(e.Path, !e.BackButton);
         }
         #endregion
         #endregion
@@ -190,13 +190,13 @@ namespace DropboxExplorer
             login.Hide();
             toolbar.Enabled = true;
 
-            await NavigateToFolder(Path);
+            await NavigateToFolder(Path, true);
         }
 
-        private async Task NavigateToFolder(string path)
+        private async Task NavigateToFolder(string path, bool addToBackButton)
         {
             Path = path;
-            toolbar.SetPath(path);
+            toolbar.SetPath(path, addToBackButton);
             await listing.NavigateToFolder(_DialogType, path);
 
             if (PathChanged != null)
