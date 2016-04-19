@@ -14,6 +14,7 @@ limitations under the License.
 */
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Text.RegularExpressions;
@@ -29,6 +30,7 @@ namespace DropboxExplorer
     {
         private string _CurrentPath = "";
         private OpenDialogType _DialogType = OpenDialogType.File;
+        private List<string> m_Filter = null;
 
         #region Public events
         public class ItemSelectedArgs : EventArgs
@@ -83,7 +85,14 @@ namespace DropboxExplorer
             }
         }
 
-        public string Filter { get; set; }
+        public void SetFilter(string filter)
+        {
+            m_Filter = new List<string>();
+            foreach(var item in filter.Split(';'))
+            {
+                m_Filter.Add(item.Trim());
+            }
+        }
 
         /// <summary>
         /// Gets the selected item
@@ -389,10 +398,16 @@ namespace DropboxExplorer
         
         private bool IncludeFile(FileSystemObject file)
         {
-            if (string.IsNullOrEmpty(Filter))
+            if (m_Filter == null || m_Filter.Count == 0)
                 return true;
 
-            return WildcardLike(file.Name, Filter);
+            foreach (var item in m_Filter)
+            {
+                if (WildcardLike(file.Name, item))
+                    return true;
+            }
+
+            return false;
         }
 
         private static bool WildcardLike(string InputString, string Pattern)

@@ -78,6 +78,7 @@ namespace DropboxExplorer.Test
                 {
                     dlg.DownloadFolder = txtDownloadFolder.Text;
                     //dlg.Filter = "Word Documents (*.docx)|*.docx|All Files (*.*)|*.*";
+                    dlg.Filter = "Office Documents (*.docx, *.xlsx)|*.docx; *.xlsx|All Files (*.*)|*.*";
 
                     if (dlg.ShowDialog(this) == DialogResult.OK)
                     {

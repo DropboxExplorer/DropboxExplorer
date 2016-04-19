@@ -55,7 +55,7 @@ namespace DropboxExplorer
 
         public async void SetFilter(string filter)
         {
-            listing.Filter = filter;
+            listing.SetFilter(filter);
             if (listing.Visible)
                 await listing.ForceRefresh();
         }
