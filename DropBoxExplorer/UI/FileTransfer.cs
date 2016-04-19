@@ -81,8 +81,9 @@ namespace DropboxExplorer
             try
             {
                 lblAction.Text = "Uploading:";
-                lblSource.Text = localFilePath;
-                lblDestination.Text = dropboxFilePath;
+                lblFileName.Text = Path.GetFileName(localFilePath);
+                lblSource.Text = Path.GetDirectoryName(localFilePath);
+                lblDestination.Text = dropboxFilePath.Substring(0, dropboxFilePath.Length - lblFileName.Text.Length);
                 this.Show();
                 this.BringToFront();
                 DateTime timeout = DateTime.Now.AddMilliseconds(FileTransferMinTimeMS);
