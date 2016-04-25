@@ -44,7 +44,7 @@
             // 
             this.btnOK.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnOK.Enabled = false;
-            this.btnOK.Location = new System.Drawing.Point(563, 15);
+            this.btnOK.Location = new System.Drawing.Point(413, 15);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 2;
@@ -56,7 +56,7 @@
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnCancel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnCancel.Location = new System.Drawing.Point(644, 15);
+            this.btnCancel.Location = new System.Drawing.Point(494, 15);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 3;
@@ -72,7 +72,7 @@
             this.txtFilename.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.txtFilename.MaximumSize = new System.Drawing.Size(2000, 21);
             this.txtFilename.Name = "txtFilename";
-            this.txtFilename.Size = new System.Drawing.Size(211, 21);
+            this.txtFilename.Size = new System.Drawing.Size(61, 22);
             this.txtFilename.TabIndex = 1;
             this.txtFilename.TextChanged += new System.EventHandler(this.txtFilename_TextChanged);
             // 
@@ -104,12 +104,12 @@
             this.tableLayoutPanel1.Controls.Add(this.btnOK, 4, 0);
             this.tableLayoutPanel1.Controls.Add(this.cboFilter, 2, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 608);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 578);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.Padding = new System.Windows.Forms.Padding(12);
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(734, 53);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(584, 53);
             this.tableLayoutPanel1.TabIndex = 4;
             // 
             // cboFilter
@@ -120,7 +120,7 @@
             this.cboFilter.FormattingEnabled = true;
             this.cboFilter.IntegralHeight = false;
             this.cboFilter.ItemHeight = 13;
-            this.cboFilter.Location = new System.Drawing.Point(297, 16);
+            this.cboFilter.Location = new System.Drawing.Point(147, 16);
             this.cboFilter.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.cboFilter.Name = "cboFilter";
             this.cboFilter.Size = new System.Drawing.Size(200, 21);
@@ -135,7 +135,7 @@
             this.fileTransfer1.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.fileTransfer1.Location = new System.Drawing.Point(0, 0);
             this.fileTransfer1.Name = "fileTransfer1";
-            this.fileTransfer1.Size = new System.Drawing.Size(734, 608);
+            this.fileTransfer1.Size = new System.Drawing.Size(584, 578);
             this.fileTransfer1.TabIndex = 2;
             this.fileTransfer1.Visible = false;
             // 
@@ -147,7 +147,7 @@
             this.fileBrowser1.Location = new System.Drawing.Point(0, 0);
             this.fileBrowser1.Name = "fileBrowser1";
             this.fileBrowser1.ShowNewFolderButton = true;
-            this.fileBrowser1.Size = new System.Drawing.Size(734, 608);
+            this.fileBrowser1.Size = new System.Drawing.Size(584, 578);
             this.fileBrowser1.TabIndex = 0;
             this.fileBrowser1.PathChanged += new System.EventHandler<DropboxExplorer.FileBrowser.ItemSelectedArgs>(this.fileBrowser1_PathChanged);
             this.fileBrowser1.FileSelected += new System.EventHandler<DropboxExplorer.FileBrowser.ItemSelectedArgs>(this.fileBrowser1_FileSelected);
@@ -159,7 +159,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(734, 661);
+            this.ClientSize = new System.Drawing.Size(584, 631);
             this.Controls.Add(this.fileTransfer1);
             this.Controls.Add(this.fileBrowser1);
             this.Controls.Add(this.tableLayoutPanel1);
