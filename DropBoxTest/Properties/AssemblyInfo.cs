@@ -20,10 +20,10 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("DropboxExplorer Test Application")]
-[assembly: AssemblyDescription("Dropbox open and save file dialogs for .NET Test Application")]
+[assembly: AssemblyDescription("Free replacement open and save file dialogs for desktop .NET applications - Test Application")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("DropboxExplorer.com")]
-[assembly: AssemblyProduct("Dropbox open and save file dialogs for .NET Test Application")]
+[assembly: AssemblyProduct("Free replacement open and save file dialogs for desktop .NET applications - Test Application")]
 [assembly: AssemblyCopyright("Copyright © 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
