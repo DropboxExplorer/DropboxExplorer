@@ -72,6 +72,24 @@ namespace DropboxExplorer
         }
 
         public event EventHandler<EventArgs> NewFolder;
+
+        public class SearchChangedArgs : EventArgs
+        {
+            /// <summary>
+            /// The search term entered
+            /// </summary>
+            public string SearchTerm { get; internal set; }
+
+            internal SearchChangedArgs(string term)
+            {
+                SearchTerm = term;
+            }
+        }
+
+        /// <summary>
+        /// A new search term has been entered
+        /// </summary>
+        public event EventHandler<SearchChangedArgs> SearchChanged;
         #endregion
 
         #region Member variables
@@ -82,6 +100,7 @@ namespace DropboxExplorer
         private ToolStripItem _ButtonNew = null;
         private ToolStripItem _SeparatorPath = null;
         private ToolStripItem _ButtonRoot = null;
+        private ToolStripControlHost _TextSearch = null;
 
         private List<ToolStripItem> _BreadcrumbButtons = new List<ToolStripItem>();
         private List<string> _PreviousPaths = new List<string>();
@@ -104,6 +123,11 @@ namespace DropboxExplorer
 
             this.Items.Add(_SeparatorPath = new ToolStripLabel(" "));
             _ButtonRoot = AddButton("Dropbox", "Return to root folder", Properties.Resources.Dropbox, true, _ButtonRoot_Click, "");
+
+            this.Items.Add(_TextSearch = new ToolStripControlHost(new TextBoxThemedBorder()));
+            _TextSearch.Alignment = ToolStripItemAlignment.Right;
+            _TextSearch.ToolTipText = "Search";
+            _TextSearch.TextChanged += search_TextChanged;
         }
         #endregion
 
@@ -212,10 +236,18 @@ namespace DropboxExplorer
             string path = ((ToolStripButton)sender).Tag.ToString();
             ButtonClick((ToolStripButton)sender, path, false);
         }
+
         private void backButtonMenuItem_Click(object sender, EventArgs e)
         {
             string path = ((ToolStripButton)sender).Tag.ToString();
             ButtonClick((ToolStripButton)sender, path, true);
+        }
+
+        private void search_TextChanged(object sender, EventArgs e)
+        {
+            if (SearchChanged == null) return;
+
+            SearchChanged(this, new SearchChangedArgs(_TextSearch.Text));
         }
         #endregion
 

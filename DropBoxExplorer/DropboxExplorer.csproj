@@ -136,6 +136,9 @@
     <Compile Include="UI\OpenDropboxDialog.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="UI\TextBoxThemedBorder.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="UI\WebLogin.cs">
       <SubType>UserControl</SubType>
     </Compile>

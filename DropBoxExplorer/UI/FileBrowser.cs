@@ -30,6 +30,7 @@ namespace DropboxExplorer
     {
         #region Member variables
         private OpenDialogType _DialogType = OpenDialogType.File;
+        private string _SearchTerm = "";
         #endregion
 
         #region Public properties
@@ -95,6 +96,8 @@ namespace DropboxExplorer
         public FileBrowser()
         {
             InitializeComponent();
+
+            toolbar.Enabled = true;
         }
         #endregion
 
@@ -102,10 +105,11 @@ namespace DropboxExplorer
         /// <summary>
         /// Initialises the control by navigating to the Dropbox login page or the root folder if already authorized
         /// </summary>
-        public async void Initialise(OpenDialogType dialogType, string initialPath = "")
+        public async void Initialise(OpenDialogType dialogType, string initialPath = "", string searchTerm = "")
         {
             _DialogType = dialogType;
             Path = initialPath;
+            _SearchTerm = searchTerm;
 
             if (string.IsNullOrEmpty(DropboxAuthorization.AccessToken))
             {
@@ -187,6 +191,21 @@ namespace DropboxExplorer
         {
             await NavigateToFolder(e.Path, !e.BackButton);
         }
+
+        private void toolbar_SearchChanged(object sender, NavigationBar.SearchChangedArgs e)
+        {
+            timerSearch.Stop();
+            _SearchTerm = e.SearchTerm;
+            timerSearch.Start();
+        }
+        #endregion
+
+        #region Timer
+        private async void timerSearch_Tick(object sender, EventArgs e)
+        {
+            timerSearch.Stop();
+            await NavigateToFolder(Path, false);
+        }
         #endregion
         #endregion
 
@@ -204,7 +223,7 @@ namespace DropboxExplorer
         {
             Path = path;
             toolbar.SetPath(path, addToBackButton);
-            await listing.NavigateToFolder(_DialogType, path);
+            await listing.NavigateToFolder(_DialogType, path, _SearchTerm);
 
             if (PathChanged != null)
             {

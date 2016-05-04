@@ -128,10 +128,7 @@ namespace DropboxExplorer
         //    return _Dropbox.Files.ListFolderAsync(path);
         //}
         public async Task<FileSystemObjects> GetFolderContents(string path, OpenDialogType dialogType)
-        {
-            FileSystemObjects items = new FileSystemObjects();
-            Dictionary<string, SharedLinkMetadata> shares = new Dictionary<string, SharedLinkMetadata>();
-            
+        {            
             #region Get all file system items
             IList<Metadata> entries = null;
             var operationContents = Task.Factory.StartNew(() =>
@@ -141,6 +138,16 @@ namespace DropboxExplorer
             });
             await operationContents;
             #endregion
+
+            Task<FileSystemObjects> objects = MetadataToFileSystemObjects(entries, dialogType);
+            return objects.Result;
+        }
+
+        private async Task<FileSystemObjects> MetadataToFileSystemObjects(IList<Metadata> entries, OpenDialogType dialogType)
+        {
+            FileSystemObjects items = new FileSystemObjects();
+
+            Dictionary<string, SharedLinkMetadata> shares = new Dictionary<string, SharedLinkMetadata>();
 
             #region Get all shares if required
             if (dialogType != OpenDialogType.File)
@@ -211,7 +218,7 @@ namespace DropboxExplorer
 
             return items;
         }
-        
+
         /// <summary>
         /// Gets the thumbnail for an item
         /// </summary>
@@ -261,6 +268,31 @@ namespace DropboxExplorer
             {
                 await _Dropbox.Files.UploadAsync(dropboxFilePath, WriteMode.Add.Instance, !overwrite, body: stream);
             }
+        }
+
+        /// <summary>
+        /// Searches a path for an item
+        /// </summary>
+        /// <param name="folder">The folder to begin the search in</param>
+        /// <param name="query">The item to search for</param>
+        /// <returns>The result of the asynchronous operation</returns>
+        public async Task<FileSystemObjects> Search(string folder, OpenDialogType dialogType, string query)
+        {
+            await _Dropbox.Files.SearchAsync(folder, query);
+
+            IList<Metadata> entries = new List<Metadata>();
+            var operationContents = Task.Factory.StartNew(() =>
+            {
+                Task<SearchResult> results = _Dropbox.Files.SearchAsync(folder, query);
+                foreach(var match in results.Result.Matches)
+                {
+                    entries.Add(match.Metadata);
+                }
+            });
+            await operationContents;
+
+            Task<FileSystemObjects> objects = MetadataToFileSystemObjects(entries, dialogType);
+            return objects.Result;
         }
 
         /// <summary>

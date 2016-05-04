@@ -29,6 +29,7 @@ namespace DropboxExplorer
     internal partial class FileListing : UserControl
     {
         private string _CurrentPath = "";
+        private string _SearchTerm = "";
         private OpenDialogType _DialogType = OpenDialogType.File;
         private List<string> m_Filter = null;
 
@@ -64,8 +65,9 @@ namespace DropboxExplorer
             listview.Columns.Add("Name");
             listview.Columns.Add("Type");
             listview.Columns.Add("Size");
-            listview.Columns.Add("Date");
-            
+            listview.Columns.Add("Modified");
+            listview.Columns.Add("Path");
+
             WinAPI.ConfigureListView(listview);
         }
 
@@ -112,10 +114,11 @@ namespace DropboxExplorer
         /// </summary>
         /// <param name="path">The path to navigate to</param>
         /// <returns>The result of the asynchronous operation</returns>
-        internal async Task NavigateToFolder(OpenDialogType dialogType, string path)
+        internal async Task NavigateToFolder(OpenDialogType dialogType, string path, string searchTerm)
         {
             _CurrentPath = DropboxFiles.FixPath(path);
             _DialogType = dialogType;
+            _SearchTerm = searchTerm;
 
             busyIcon1.Show();
             busyIcon1.BringToFront();
@@ -127,7 +130,12 @@ namespace DropboxExplorer
 
                 using (var dropbox = new DropboxFiles())
                 {
-                    var items = await dropbox.GetFolderContents(_CurrentPath, _DialogType);
+                    FileSystemObjects items;
+
+                    if (string.IsNullOrEmpty(_SearchTerm))
+                        items = await dropbox.GetFolderContents(_CurrentPath, _DialogType);
+                    else
+                        items = await dropbox.Search(_CurrentPath, _DialogType, _SearchTerm);
 
                     // We might have ended up in the async method multiple times so lets clear again just in case
                     listview.Items.Clear();
@@ -137,7 +145,7 @@ namespace DropboxExplorer
                         switch (item.ItemType)
                         {
                             case FileSystemObjectType.Folder:
-                                var folder = CreateItem(item.Name, "Folder", "", "File folder", "", item);
+                                var folder = CreateItem(item.Name, "Folder", "", "File folder", "", "", item);
                                 listview.Items.Add(folder);
                                 break;
 
@@ -170,7 +178,7 @@ namespace DropboxExplorer
 
         internal void NewFolder()
         {
-            ListViewItem folder = CreateItem("New folder", "Folder", "", "File folder", "", null);
+            ListViewItem folder = CreateItem("New folder", "Folder", "", "File folder", "", "", null);
             listview.Items.Add(folder);
             listview.LabelEdit = true;
             folder.BeginEdit();
@@ -190,7 +198,7 @@ namespace DropboxExplorer
         internal async Task ForceRefresh()
         {
             InitialiseImageLists();
-            await NavigateToFolder(_DialogType, _CurrentPath);
+            await NavigateToFolder(_DialogType, _CurrentPath, _SearchTerm);
         }
         #endregion
 
@@ -333,7 +341,7 @@ namespace DropboxExplorer
                 filetypes48.Images.Add(imageKey, large);
             }
 
-            var item = CreateItem(file.Name, imageKey, file.ClientModified.ToString(), WinAPI.GetFileTypeName(ext), WinAPI.FormatBytes(file.Size), file);
+            var item = CreateItem(file.Name, imageKey, file.ClientModified.ToString(), WinAPI.GetFileTypeName(ext), WinAPI.FormatBytes(file.Size), file.Path, file);
             listview.Items.Add(item);
 
             // If current image is based on extension, get the thumbnail
@@ -353,7 +361,7 @@ namespace DropboxExplorer
             }
         }
 
-        private ListViewItem CreateItem(string name, string icon, string date, string type, string size, object tag)
+        private ListViewItem CreateItem(string name, string icon, string date, string type, string size, string path, object tag)
         {
             ListViewItem item = new ListViewItem();
             item.Text = name;
@@ -362,6 +370,8 @@ namespace DropboxExplorer
             item.SubItems.Add(type);
             item.SubItems.Add(size);
             item.SubItems.Add(date);
+            item.SubItems.Add(path);
+            item.ToolTipText = path;
             return item;
         }
 
