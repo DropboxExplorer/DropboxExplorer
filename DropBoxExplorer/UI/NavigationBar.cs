@@ -123,8 +123,8 @@ namespace DropboxExplorer
 
             this.Items.Add(_SeparatorPath = new ToolStripLabel(" "));
             _ButtonRoot = AddButton("Dropbox", "Return to root folder", Properties.Resources.Dropbox, true, _ButtonRoot_Click, "");
-
-            this.Items.Add(_TextSearch = new ToolStripControlHost(new TextBoxThemedBorder()));
+            
+            this.Items.Add(_TextSearch = new ToolStripControlHost(new SearchBox()));
             _TextSearch.Alignment = ToolStripItemAlignment.Right;
             _TextSearch.ToolTipText = "Search";
             _TextSearch.TextChanged += search_TextChanged;

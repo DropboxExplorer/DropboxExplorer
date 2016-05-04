@@ -96,8 +96,6 @@ namespace DropboxExplorer
         public FileBrowser()
         {
             InitializeComponent();
-
-            toolbar.Enabled = true;
         }
         #endregion
 

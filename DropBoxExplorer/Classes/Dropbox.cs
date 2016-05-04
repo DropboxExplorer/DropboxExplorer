@@ -84,6 +84,9 @@ namespace DropboxExplorer
         /// </summary>
         internal DropboxFiles()
         {
+            if (string.IsNullOrEmpty(DropboxAuthorization.AccessToken))
+                throw new AuthorizationException();
+
             _Dropbox = new DropboxClient(DropboxAuthorization.AccessToken);
         }
 
@@ -134,13 +137,109 @@ namespace DropboxExplorer
             var operationContents = Task.Factory.StartNew(() =>
             {
                 Task<ListFolderResult> results = _Dropbox.Files.ListFolderAsync(path);
-                entries = results.Result.Entries;
+                if (results.Exception != null)
+                    throw results.Exception;
+
+                if (results.Result != null)
+                    entries = results.Result.Entries;
             });
             await operationContents;
             #endregion
 
             Task<FileSystemObjects> objects = MetadataToFileSystemObjects(entries, dialogType);
             return objects.Result;
+        }
+
+        /// <summary>
+        /// Gets the thumbnail for an item
+        /// </summary>
+        /// <param name="path">The path to the item</param>
+        /// <returns>The thumbnail</returns>
+        public async Task<Image> GetThumbnail(string path)
+        {
+            var task = await _Dropbox.Files.GetThumbnailAsync(path);
+            using (var stream = task.GetContentAsStreamAsync())
+            {
+                return new Bitmap(stream.Result);
+            }
+        }
+
+        /// <summary>
+        /// Creates a new folder
+        /// </summary>
+        /// <param name="path">The full path of the folder to create</param>
+        /// <returns>The result of the asynchronous operation</returns>
+        public async Task CreateFolder(string path)
+        {
+            var task = await _Dropbox.Files.CreateFolderAsync(path);
+        }
+
+        /// <summary>
+        /// Downloads a file from Dropbox
+        /// </summary>
+        /// <param name="dropboxFilePath">The path to the dropbox file to download</param>
+        /// <param name="localFilePath">The local path to save the file as</param>
+        /// <returns>The result of the asynchronous operation</returns>
+        public async Task DownloadFile(string dropboxFilePath, string localFilePath)
+        {
+            var download = await _Dropbox.Files.DownloadAsync(dropboxFilePath);
+            var bytes = await download.GetContentAsByteArrayAsync();
+            System.IO.File.WriteAllBytes(localFilePath, bytes);
+        }
+
+        /// <summary>
+        /// Uploads a file to Dropbox
+        /// </summary>
+        /// <param name="dropboxFilePath">The path to save the upload as within Dropbox</param>
+        /// <param name="localFilePath">The local file to upload</param>
+        /// <returns>The result of the asynchronous operation</returns>
+        public async Task UploadFile(string dropboxFilePath, string localFilePath, bool overwrite)
+        {
+            using (System.IO.FileStream stream = new System.IO.FileStream(localFilePath, System.IO.FileMode.Open))
+            {
+                await _Dropbox.Files.UploadAsync(dropboxFilePath, WriteMode.Add.Instance, !overwrite, body: stream);
+            }
+        }
+
+        /// <summary>
+        /// Searches a path for an item
+        /// </summary>
+        /// <param name="folder">The folder to begin the search in</param>
+        /// <param name="query">The item to search for</param>
+        /// <returns>The result of the asynchronous operation</returns>
+        public async Task<FileSystemObjects> Search(string folder, OpenDialogType dialogType, string query)
+        {
+            await _Dropbox.Files.SearchAsync(folder, query);
+
+            IList<Metadata> entries = new List<Metadata>();
+            var operationContents = Task.Factory.StartNew(() =>
+            {
+                Task<SearchResult> results = _Dropbox.Files.SearchAsync(folder, query);
+                if (results.Exception != null)
+                    throw results.Exception;
+
+                foreach (var match in results.Result.Matches)
+                {
+                    if (match.Metadata.IsFile)
+                        entries.Add(match.Metadata);
+                }
+            });
+            await operationContents;
+
+            Task<FileSystemObjects> objects = MetadataToFileSystemObjects(entries, dialogType);
+            return objects.Result;
+        }
+
+        /// <summary>
+        /// Disposed the object
+        /// </summary>
+        void IDisposable.Dispose()
+        {
+            if (_Dropbox != null)
+            {
+                _Dropbox.Dispose();
+                _Dropbox = null;
+            }
         }
 
         private async Task<FileSystemObjects> MetadataToFileSystemObjects(IList<Metadata> entries, OpenDialogType dialogType)
@@ -217,94 +316,6 @@ namespace DropboxExplorer
             #endregion
 
             return items;
-        }
-
-        /// <summary>
-        /// Gets the thumbnail for an item
-        /// </summary>
-        /// <param name="path">The path to the item</param>
-        /// <returns>The thumbnail</returns>
-        public async Task<Image> GetThumbnail(string path)
-        {
-            var task = await _Dropbox.Files.GetThumbnailAsync(path);
-            using (var stream = task.GetContentAsStreamAsync())
-            {
-                return new Bitmap(stream.Result);
-            }
-        }
-
-        /// <summary>
-        /// Creates a new folder
-        /// </summary>
-        /// <param name="path">The full path of the folder to create</param>
-        /// <returns>The result of the asynchronous operation</returns>
-        public async Task CreateFolder(string path)
-        {
-            var task = await _Dropbox.Files.CreateFolderAsync(path);
-        }
-
-        /// <summary>
-        /// Downloads a file from Dropbox
-        /// </summary>
-        /// <param name="dropboxFilePath">The path to the dropbox file to download</param>
-        /// <param name="localFilePath">The local path to save the file as</param>
-        /// <returns>The result of the asynchronous operation</returns>
-        public async Task DownloadFile(string dropboxFilePath, string localFilePath)
-        {
-            var download = await _Dropbox.Files.DownloadAsync(dropboxFilePath);
-            var bytes = await download.GetContentAsByteArrayAsync();
-            System.IO.File.WriteAllBytes(localFilePath, bytes);
-        }
-
-        /// <summary>
-        /// Uploads a file to Dropbox
-        /// </summary>
-        /// <param name="dropboxFilePath">The path to save the upload as within Dropbox</param>
-        /// <param name="localFilePath">The local file to upload</param>
-        /// <returns>The result of the asynchronous operation</returns>
-        public async Task UploadFile(string dropboxFilePath, string localFilePath, bool overwrite)
-        {
-            using (System.IO.FileStream stream = new System.IO.FileStream(localFilePath, System.IO.FileMode.Open))
-            {
-                await _Dropbox.Files.UploadAsync(dropboxFilePath, WriteMode.Add.Instance, !overwrite, body: stream);
-            }
-        }
-
-        /// <summary>
-        /// Searches a path for an item
-        /// </summary>
-        /// <param name="folder">The folder to begin the search in</param>
-        /// <param name="query">The item to search for</param>
-        /// <returns>The result of the asynchronous operation</returns>
-        public async Task<FileSystemObjects> Search(string folder, OpenDialogType dialogType, string query)
-        {
-            await _Dropbox.Files.SearchAsync(folder, query);
-
-            IList<Metadata> entries = new List<Metadata>();
-            var operationContents = Task.Factory.StartNew(() =>
-            {
-                Task<SearchResult> results = _Dropbox.Files.SearchAsync(folder, query);
-                foreach(var match in results.Result.Matches)
-                {
-                    entries.Add(match.Metadata);
-                }
-            });
-            await operationContents;
-
-            Task<FileSystemObjects> objects = MetadataToFileSystemObjects(entries, dialogType);
-            return objects.Result;
-        }
-
-        /// <summary>
-        /// Disposed the object
-        /// </summary>
-        void IDisposable.Dispose()
-        {
-            if (_Dropbox != null)
-            {
-                _Dropbox.Dispose();
-                _Dropbox = null;
-            }
         }
     }
 }
