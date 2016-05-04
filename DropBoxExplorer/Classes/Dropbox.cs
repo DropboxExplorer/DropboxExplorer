@@ -22,6 +22,7 @@ using Dropbox.Api;
 using Dropbox.Api.Files;
 using Dropbox.Api.Sharing;
 using System.Collections.Generic;
+using System.IO;
 
 namespace DropboxExplorer
 {
@@ -182,9 +183,39 @@ namespace DropboxExplorer
         /// <returns>The result of the asynchronous operation</returns>
         public async Task DownloadFile(string dropboxFilePath, string localFilePath)
         {
+            //var download = await _Dropbox.Files.DownloadAsync(dropboxFilePath);
+            //var bytes = await download.GetContentAsByteArrayAsync();
+            //System.IO.File.WriteAllBytes(localFilePath, bytes);
+
+            if (File.Exists(localFilePath))
+                File.Delete(localFilePath);
+
             var download = await _Dropbox.Files.DownloadAsync(dropboxFilePath);
-            var bytes = await download.GetContentAsByteArrayAsync();
-            System.IO.File.WriteAllBytes(localFilePath, bytes);
+            ulong fileSize = download.Response.Size;
+            const int bufferSize = 1024 * 1024;
+
+            var buffer = new byte[bufferSize];
+
+            using (var stream = await download.GetContentAsStreamAsync())
+            {
+                using (var file = new FileStream(localFilePath, FileMode.OpenOrCreate))
+                {
+                    var asyncDownload = Task.Factory.StartNew(() =>
+                    {
+                        var length = stream.Read(buffer, 0, bufferSize);
+
+                        while (length > 0)
+                        {
+                            file.Write(buffer, 0, length);
+                            var percentage = 100 * (ulong)file.Length / fileSize;
+                            Console.WriteLine("PERCENTAGE = " + percentage.ToString());
+
+                            length = stream.Read(buffer, 0, bufferSize);
+                        }
+                    });
+                    await asyncDownload;
+                }
+            }
         }
 
         /// <summary>
