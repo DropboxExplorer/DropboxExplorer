@@ -55,6 +55,7 @@ namespace DropboxExplorer
 
                 using (var dropbox = new DropboxFiles())
                 {
+                    dropbox.FileTransferProgress += Dropbox_FileTransferProgress;
                     await dropbox.DownloadFile(dropboxFilePath, localFilePath);
                 }
 
@@ -68,6 +69,19 @@ namespace DropboxExplorer
             {
                 ErrorPanel.ShowError(this, ex);
             }
+        }
+
+        private void Dropbox_FileTransferProgress(object sender, DropboxFiles.FileTransferProgressArgs e)
+        {
+            if (this.InvokeRequired)
+                this.Invoke(new MethodInvoker(() => { UpdateProgress(e); }));
+            else
+                UpdateProgress(e);
+        }
+
+        private void UpdateProgress(DropboxFiles.FileTransferProgressArgs e)
+        {
+            progress.Value = e.Percentage;
         }
 
         /// <summary>
@@ -90,6 +104,11 @@ namespace DropboxExplorer
 
                 using (var dropbox = new DropboxFiles())
                 {
+                    // TEMP CODE
+                    progress.Style = ProgressBarStyle.Marquee;
+
+
+                    dropbox.FileTransferProgress += Dropbox_FileTransferProgress;
                     await dropbox.UploadFile(dropboxFilePath, localFilePath, overwrite);
                 }
 
@@ -113,7 +132,6 @@ namespace DropboxExplorer
             tableLayoutPanel1.Width = Math.Min(this.Width, MAX_WIDTH);
 
             // Make sure controls are centered due to being unreliable with font scalling in Windows
-            busyIcon1.Left = (this.Width - busyIcon1.Width) / 2;
             tableLayoutPanel1.Left = (this.Width - tableLayoutPanel1.Width) / 2;
         }
     }

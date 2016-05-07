@@ -80,6 +80,55 @@ namespace DropboxExplorer
     {
         private DropboxClient _Dropbox = null;
 
+        #region Public events
+        public class FileTransferProgressArgs : EventArgs
+        {
+            /// <summary>
+            /// The dropbox file path
+            /// </summary>
+            public string DropboxFilePath { get; private set; }
+
+            /// <summary>
+            /// The local file path
+            /// </summary>
+            public string LocalFilePath { get; private set; }
+
+            /// <summary>
+            /// The total size of the file
+            /// </summary>
+            public ulong FileSize { get; private set; }
+
+            /// <summary>
+            /// The current numbers of bytes trasnfered
+            /// </summary>
+            public ulong BytesTrasnfered { get; internal set; }
+
+            /// <summary>
+            /// Calculate transfer progress as percentage
+            /// </summary>
+            public int Percentage
+            {
+                get
+                {
+                    return (int)Math.Round(100F * BytesTrasnfered / FileSize);
+                }
+            }
+
+            internal FileTransferProgressArgs(string dropboxFilePath, string localFilePath, ulong fileSize, ulong bytesTrasnfered)
+            {
+                DropboxFilePath = dropboxFilePath;
+                LocalFilePath= localFilePath;
+                FileSize = fileSize;
+                BytesTrasnfered = bytesTrasnfered;
+            }
+        }
+
+        /// <summary>
+        /// The path has been changed
+        /// </summary>
+        public event EventHandler<FileTransferProgressArgs> FileTransferProgress;
+        #endregion
+
         /// <summary>
         /// Creates a new DropboxFiles class
         /// </summary>
@@ -127,10 +176,6 @@ namespace DropboxExplorer
         /// </summary>
         /// <param name="path">The folder to get contents of</param>
         /// <returns>A collection of file and folder items</returns>
-        //public Task<ListFolderResult> GetFolderContents(string path)
-        //{
-        //    return _Dropbox.Files.ListFolderAsync(path);
-        //}
         public async Task<FileSystemObjects> GetFolderContents(string path, OpenDialogType dialogType)
         {            
             #region Get all file system items
@@ -192,10 +237,13 @@ namespace DropboxExplorer
 
             var download = await _Dropbox.Files.DownloadAsync(dropboxFilePath);
             ulong fileSize = download.Response.Size;
-            const int bufferSize = 1024 * 1024;
 
+            FileTransferProgressArgs args = new FileTransferProgressArgs(dropboxFilePath, localFilePath, fileSize, 0);
+
+            const int bufferSize = 1024 * 1024;
             var buffer = new byte[bufferSize];
 
+            // Open the stream and download a small chunk at a time so we can report proress
             using (var stream = await download.GetContentAsStreamAsync())
             {
                 using (var file = new FileStream(localFilePath, FileMode.OpenOrCreate))
@@ -207,8 +255,13 @@ namespace DropboxExplorer
                         while (length > 0)
                         {
                             file.Write(buffer, 0, length);
-                            var percentage = 100 * (ulong)file.Length / fileSize;
-                            Console.WriteLine("PERCENTAGE = " + percentage.ToString());
+
+                            // Calculate and report progress
+                            args.BytesTrasnfered = (ulong)file.Length;
+                            if (FileTransferProgress != null)
+                            {
+                                FileTransferProgress(this, args);
+                            }
 
                             length = stream.Read(buffer, 0, bufferSize);
                         }
@@ -273,6 +326,12 @@ namespace DropboxExplorer
             }
         }
 
+        /// <summary>
+        /// Converts a collection Dropbox Metadata objects to our own file system type
+        /// </summary>
+        /// <param name="entries"></param>
+        /// <param name="dialogType"></param>
+        /// <returns></returns>
         private async Task<FileSystemObjects> MetadataToFileSystemObjects(IList<Metadata> entries, OpenDialogType dialogType)
         {
             FileSystemObjects items = new FileSystemObjects();
