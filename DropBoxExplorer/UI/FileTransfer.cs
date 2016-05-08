@@ -71,19 +71,6 @@ namespace DropboxExplorer
             }
         }
 
-        private void Dropbox_FileTransferProgress(object sender, DropboxFiles.FileTransferProgressArgs e)
-        {
-            if (this.InvokeRequired)
-                this.Invoke(new MethodInvoker(() => { UpdateProgress(e); }));
-            else
-                UpdateProgress(e);
-        }
-
-        private void UpdateProgress(DropboxFiles.FileTransferProgressArgs e)
-        {
-            progress.Value = e.Percentage;
-        }
-
         /// <summary>
         /// Uploads a file
         /// </summary>
@@ -104,10 +91,6 @@ namespace DropboxExplorer
 
                 using (var dropbox = new DropboxFiles())
                 {
-                    // TEMP CODE
-                    progress.Style = ProgressBarStyle.Marquee;
-
-
                     dropbox.FileTransferProgress += Dropbox_FileTransferProgress;
                     await dropbox.UploadFile(dropboxFilePath, localFilePath, overwrite);
                 }
@@ -122,6 +105,19 @@ namespace DropboxExplorer
             {
                 ErrorPanel.ShowError(this, ex);
             }
+        }
+
+        private void Dropbox_FileTransferProgress(object sender, DropboxFiles.FileTransferProgressArgs e)
+        {
+            if (this.InvokeRequired)
+                this.Invoke(new MethodInvoker(() => { UpdateProgress(e); }));
+            else
+                UpdateProgress(e);
+        }
+
+        private void UpdateProgress(DropboxFiles.FileTransferProgressArgs e)
+        {
+            progress.Value = e.Percentage;
         }
 
         private void FileTransfer_Resize(object sender, EventArgs e)
