@@ -28,10 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WebLogin));
             this.browser = new System.Windows.Forms.WebBrowser();
             this.busyIcon1 = new DropboxExplorer.BusyIcon();
             this.workerTest = new System.ComponentModel.BackgroundWorker();
+            this.timerTimeout = new System.Windows.Forms.Timer(this.components);
+            this.lblTimeout = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.busyIcon1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -62,6 +65,23 @@
             this.workerTest.DoWork += new System.ComponentModel.DoWorkEventHandler(this.workerTest_DoWork);
             this.workerTest.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.workerTest_RunWorkerCompleted);
             // 
+            // timerTimeout
+            // 
+            this.timerTimeout.Interval = 30000;
+            this.timerTimeout.Tick += new System.EventHandler(this.timerTimeout_Tick);
+            // 
+            // lblTimeout
+            // 
+            this.lblTimeout.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblTimeout.Location = new System.Drawing.Point(0, 0);
+            this.lblTimeout.Name = "lblTimeout";
+            this.lblTimeout.Size = new System.Drawing.Size(300, 300);
+            this.lblTimeout.TabIndex = 9;
+            this.lblTimeout.Text = "dropbox.com is not responding.\r\n\r\nCheck the DropBox status page or try again late" +
+    "r.";
+            this.lblTimeout.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblTimeout.Visible = false;
+            // 
             // WebLogin
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -69,6 +89,7 @@
             this.BackColor = System.Drawing.Color.White;
             this.Controls.Add(this.busyIcon1);
             this.Controls.Add(this.browser);
+            this.Controls.Add(this.lblTimeout);
             this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Name = "WebLogin";
             this.Size = new System.Drawing.Size(300, 300);
@@ -83,5 +104,7 @@
         private System.Windows.Forms.WebBrowser browser;
         private BusyIcon busyIcon1;
         private System.ComponentModel.BackgroundWorker workerTest;
+        private System.Windows.Forms.Timer timerTimeout;
+        private System.Windows.Forms.Label lblTimeout;
     }
 }

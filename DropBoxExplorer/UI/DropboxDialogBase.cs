@@ -224,6 +224,8 @@ namespace DropboxExplorer
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
+            btnCancel.Enabled = false;
+            fileTransfer1.Cancel();
             this.Close();
         }
         #endregion

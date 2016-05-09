@@ -72,7 +72,7 @@
             this.txtFilename.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.txtFilename.MaximumSize = new System.Drawing.Size(2000, 21);
             this.txtFilename.Name = "txtFilename";
-            this.txtFilename.Size = new System.Drawing.Size(61, 22);
+            this.txtFilename.Size = new System.Drawing.Size(61, 21);
             this.txtFilename.TabIndex = 1;
             this.txtFilename.TextChanged += new System.EventHandler(this.txtFilename_TextChanged);
             // 

@@ -15,6 +15,7 @@ limitations under the License.
 
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -28,6 +29,8 @@ namespace DropboxExplorer
         // Controls the minimum time the control will be visible
         // Small files can transfer very fast and hence this control would othewrwise flicker visible and invisible
         private const int FileTransferMinTimeMS = 2000;
+        
+        private CancellationTokenSource _cancellationTokenSource = null;
 
         public FileTransfer()
         {
@@ -52,12 +55,15 @@ namespace DropboxExplorer
                 this.BringToFront();
 
                 DateTime timeout = DateTime.Now.AddMilliseconds(FileTransferMinTimeMS);
+                _cancellationTokenSource = new CancellationTokenSource();
 
                 using (var dropbox = new DropboxFiles())
                 {
                     dropbox.FileTransferProgress += Dropbox_FileTransferProgress;
-                    await dropbox.DownloadFile(dropboxFilePath, localFilePath);
+                    await dropbox.DownloadFile(dropboxFilePath, localFilePath, _cancellationTokenSource.Token);
                 }
+
+                _cancellationTokenSource = null;
 
                 while (DateTime.Now < timeout)
                 {
@@ -88,12 +94,15 @@ namespace DropboxExplorer
                 this.Show();
                 this.BringToFront();
                 DateTime timeout = DateTime.Now.AddMilliseconds(FileTransferMinTimeMS);
+                _cancellationTokenSource = new CancellationTokenSource();
 
                 using (var dropbox = new DropboxFiles())
                 {
                     dropbox.FileTransferProgress += Dropbox_FileTransferProgress;
-                    await dropbox.UploadFile(dropboxFilePath, localFilePath, overwrite);
+                    await dropbox.UploadFile(dropboxFilePath, localFilePath, overwrite, _cancellationTokenSource.Token);
                 }
+
+                _cancellationTokenSource = null;
 
                 while (DateTime.Now < timeout)
                 {
@@ -107,6 +116,19 @@ namespace DropboxExplorer
             }
         }
 
+        /// <summary>
+        /// Cancels any pending transfer
+        /// </summary>
+        internal void Cancel()
+        {
+            try
+            {
+                // Rather than locking across threads, we'll just ignore any null errors
+                _cancellationTokenSource.Cancel();
+            }
+            catch { }
+        }
+
         private void Dropbox_FileTransferProgress(object sender, DropboxFiles.FileTransferProgressArgs e)
         {
             if (this.InvokeRequired)
@@ -118,6 +140,7 @@ namespace DropboxExplorer
         private void UpdateProgress(DropboxFiles.FileTransferProgressArgs e)
         {
             progress.Value = e.Percentage;
+            lblRemaining.Text = e.Remaining;
         }
 
         private void FileTransfer_Resize(object sender, EventArgs e)

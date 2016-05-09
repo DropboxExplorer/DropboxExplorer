@@ -68,6 +68,7 @@ namespace DropboxExplorer
             // If test was successful then navigate browser to dropbox login url
             if (e.Result == null)
             {
+                timerTimeout.Start();
                 browser.Navigate(_Authorization.URI);
             }
             else
@@ -81,6 +82,7 @@ namespace DropboxExplorer
             if (!string.IsNullOrEmpty(DropboxAuthorization.AccessToken))
                 return;
 
+            timerTimeout.Stop();
             busyIcon1.Hide();
             browser.Show();
             
@@ -102,6 +104,13 @@ namespace DropboxExplorer
             {
                 ErrorPanel.ShowError(this, ex);
             }
+        }
+
+        private void timerTimeout_Tick(object sender, EventArgs e)
+        {
+            busyIcon1.Hide();
+            browser.Hide();
+            lblTimeout.Show();
         }
     }
 }

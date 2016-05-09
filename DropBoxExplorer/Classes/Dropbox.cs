@@ -23,6 +23,7 @@ using Dropbox.Api.Files;
 using Dropbox.Api.Sharing;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 
 namespace DropboxExplorer
 {
@@ -78,6 +79,8 @@ namespace DropboxExplorer
     /// </summary>
     internal class DropboxFiles : IDisposable
     {
+        private const int ChunkSize = 128 * 1024;
+
         private DropboxClient _Dropbox = null;
 
         #region Public events
@@ -103,6 +106,8 @@ namespace DropboxExplorer
             /// </summary>
             public ulong BytesTransfered { get; internal set; }
 
+            public DateTime Started { get; private set; }
+
             /// <summary>
             /// Calculate transfer progress as percentage
             /// </summary>
@@ -114,12 +119,59 @@ namespace DropboxExplorer
                 }
             }
 
-            internal FileTransferProgressArgs(string dropboxFilePath, string localFilePath, ulong fileSize, ulong bytesTrasnfered)
+            public string Remaining
+            {
+                get
+                {
+                    double ellapsedMS = (DateTime.Now - Started).TotalMilliseconds;
+                    double percentage = (double)BytesTransfered / (double)FileSize;
+                    if (ellapsedMS < 2000)
+                        return "Calculating...";
+
+                    int remainingMS = (int)((ellapsedMS / percentage) - ellapsedMS);
+                    return FormatMS(remainingMS + 1000);
+                }
+            }
+
+            private static string FormatMS(int ms)
+            {
+                string s = "";
+                TimeSpan diff = new TimeSpan(0, 0, 0, 0, ms);
+
+                if (diff.TotalSeconds < 2.0)
+                    s = "1 second";
+                else if (diff.TotalSeconds <= 55.0)
+                    s = FormatNumber(RoundTime(diff.TotalSeconds), "second");
+                else if (diff.TotalSeconds <= 65.0)
+                    s = "1 minute";
+                else if (diff.TotalMinutes < 10.0)
+                    s = FormatNumber(diff.Minutes, "minute") + " " + FormatNumber(RoundTime(diff.Seconds), "second");
+                else if (diff.TotalHours <= 1.0)
+                    s = FormatNumber(RoundTime(diff.TotalMinutes), "minute");
+                else
+                    s = FormatNumber(RoundTime(diff.TotalHours), "hour");
+
+                return s;
+            }
+
+            private static string FormatNumber(int number, string description)
+            {
+                return string.Format("{0} {1}{2}", number, description, (number == 1 ? "" : "s"));
+            }
+
+            private static int RoundTime(double time)
+            {
+                int rounded = (int)(Math.Round(time / 5.0) * 5);
+                return Math.Max(1, rounded);
+            }
+
+            internal FileTransferProgressArgs(string dropboxFilePath, string localFilePath, ulong fileSize)
             {
                 DropboxFilePath = dropboxFilePath;
                 LocalFilePath= localFilePath;
                 FileSize = fileSize;
-                BytesTransfered = bytesTrasnfered;
+                BytesTransfered = 0;
+                Started = DateTime.Now;
             }
         }
 
@@ -226,7 +278,7 @@ namespace DropboxExplorer
         /// <param name="dropboxFilePath">The path to the dropbox file to download</param>
         /// <param name="localFilePath">The local path to save the file as</param>
         /// <returns>The result of the asynchronous operation</returns>
-        public async Task DownloadFile(string dropboxFilePath, string localFilePath)
+        public async Task DownloadFile(string dropboxFilePath, string localFilePath, CancellationToken cancelToken)
         {
             if (File.Exists(localFilePath))
                 File.Delete(localFilePath);
@@ -234,10 +286,9 @@ namespace DropboxExplorer
             var download = await _Dropbox.Files.DownloadAsync(dropboxFilePath);
             ulong fileSize = download.Response.Size;
 
-            FileTransferProgressArgs args = new FileTransferProgressArgs(dropboxFilePath, localFilePath, fileSize, 0);
-
-            const int bufferSize = 1024 * 1024;
-            var buffer = new byte[bufferSize];
+            FileTransferProgressArgs args = new FileTransferProgressArgs(dropboxFilePath, localFilePath, fileSize);
+            
+            var buffer = new byte[ChunkSize];
 
             // Open the stream and download a small chunk at a time so we can report proress
             using (var stream = await download.GetContentAsStreamAsync())
@@ -246,7 +297,7 @@ namespace DropboxExplorer
                 {
                     var asyncDownload = Task.Factory.StartNew(() =>
                     {
-                        var length = stream.Read(buffer, 0, bufferSize);
+                        var length = stream.Read(buffer, 0, ChunkSize);
 
                         while (length > 0)
                         {
@@ -259,7 +310,10 @@ namespace DropboxExplorer
                                 FileTransferProgress(this, args);
                             }
 
-                            length = stream.Read(buffer, 0, bufferSize);
+                            length = stream.Read(buffer, 0, ChunkSize);
+
+                            if (cancelToken.IsCancellationRequested)
+                                return;
                         }
                     });
                     await asyncDownload;
@@ -273,43 +327,35 @@ namespace DropboxExplorer
         /// <param name="dropboxFilePath">The path to save the upload as within Dropbox</param>
         /// <param name="localFilePath">The local file to upload</param>
         /// <returns>The result of the asynchronous operation</returns>
-        public async Task UploadFile(string dropboxFilePath, string localFilePath, bool overwrite)
+        public async Task UploadFile(string dropboxFilePath, string localFilePath, bool overwrite, CancellationToken cancelToken)
         {
-            const int chunkSize = 512 * 1024;
+            
             using (FileStream stream = new FileStream(localFilePath, System.IO.FileMode.Open))
             {
-                FileTransferProgressArgs args = new FileTransferProgressArgs(dropboxFilePath, localFilePath, (ulong)stream.Length, 0);
+                FileTransferProgressArgs args = new FileTransferProgressArgs(dropboxFilePath, localFilePath, (ulong)stream.Length);
                 if (FileTransferProgress != null)
                     FileTransferProgress(this, args);
 
-                if (stream.Length <= chunkSize)
+                if (stream.Length <= ChunkSize)
                 {
-                    await SimpleUpload(stream, dropboxFilePath, localFilePath, chunkSize, overwrite, args);
+                    await _Dropbox.Files.UploadAsync(dropboxFilePath, WriteMode.Add.Instance, !overwrite, body: stream);
                 }
 
                 else
                 {
-                    await ChunkUpload(stream, dropboxFilePath, chunkSize, overwrite, args);
+                    await ChunkUpload(stream, dropboxFilePath, ChunkSize, overwrite, args, cancelToken);
                 }
-            }
-        }
-        
-        /// <summary>
-        /// Uploads a file in a single hit
-        /// </summary>
-        private async Task SimpleUpload(FileStream stream, string dropboxFilePath, string localFilePath, int chunkSize, bool overwrite, FileTransferProgressArgs args)
-        {
-            await _Dropbox.Files.UploadAsync(dropboxFilePath, WriteMode.Add.Instance, !overwrite, body: stream);
 
-            args.BytesTransfered = args.FileSize;
-            if (FileTransferProgress != null)
-                FileTransferProgress(this, args);
+                args.BytesTransfered = args.FileSize;
+                if (FileTransferProgress != null)
+                    FileTransferProgress(this, args);
+            }
         }
 
         /// <summary>
         /// Uploads a file as multiple chunks with progress events
         /// </summary>
-        private async Task ChunkUpload(FileStream stream, string dropboxFilePath, int chunkSize, bool overwrite, FileTransferProgressArgs args)
+        private async Task ChunkUpload(FileStream stream, string dropboxFilePath, int chunkSize, bool overwrite, FileTransferProgressArgs args, CancellationToken cancelToken)
         {
             int numChunks = (int)Math.Ceiling((double)stream.Length / chunkSize);
 
@@ -339,10 +385,6 @@ namespace DropboxExplorer
                         {
                             CommitInfo commit = new CommitInfo(dropboxFilePath, WriteMode.Add.Instance, !overwrite);
                             await _Dropbox.Files.UploadSessionFinishAsync(cursor, commit, memStream);
-
-                            args.BytesTransfered = args.FileSize;
-                            if (FileTransferProgress != null)
-                                FileTransferProgress(this, args);
                         }
 
                         else
@@ -355,6 +397,9 @@ namespace DropboxExplorer
                         }
                     }
                 }
+                
+                if (cancelToken.IsCancellationRequested)
+                    return;
             }
         }
         
