@@ -92,7 +92,7 @@ namespace DropboxExplorer
             m_Filter = new List<string>();
             foreach(var item in filter.Split(';'))
             {
-                m_Filter.Add(item.Trim());
+                m_Filter.Add(WildcardToRegularExpression(item.Trim()));
             }
         }
 
@@ -413,54 +413,58 @@ namespace DropboxExplorer
 
             foreach (var item in m_Filter)
             {
-                if (WildcardLike(file.Name, item))
+                if (RegExCompare(file.Name, item))
                     return true;
             }
 
             return false;
         }
 
-        private static bool WildcardLike(string InputString, string Pattern)
+        private static bool RegExCompare(string InputString, string pattern)
         {
             // Cope with empty pattern
-            if (Pattern.Length == 0 && InputString.Length > 0)
+            if (pattern.Length == 0 && InputString.Length > 0)
             {
                 return false;
             }
-            else if (Pattern.Contains("*"))
-            {
-                // Replace simple asterix with RegEx version
-                Pattern = Pattern.Replace(@"\", @"\\");
-                Pattern = Pattern.Replace(@".", @"\.");
-                Pattern = Pattern.Replace(@"*", @".*");
-                Pattern = Pattern.Replace(@"[", @"\[");
-                Pattern = Pattern.Replace(@"]", @"\]");
-                Pattern = Pattern.Replace(@"(", @"\(");
-                Pattern = Pattern.Replace(@")", @"\)");
-                Pattern = Pattern.Replace(@"$", @"\$");
-                Pattern = Pattern.Replace(@"^", @"\^");
-                Pattern = Pattern.Replace(@"?", @"\?");
-                Pattern = Pattern.Replace(@"<", @"\<");
-                Pattern = Pattern.Replace(@">", @"\>");
-                Pattern = Pattern.Replace(@"{", @"\{");
-                Pattern = Pattern.Replace(@"}", @"\}");
-                Pattern = Pattern.Replace(@"+", @"\+");
-                Pattern = Pattern.Replace(@"-", @"\-");
-
-                // If the user isn't searching with an asterix at the start or end, include the no characters allowed option.
-                if (!Pattern.StartsWith(".*"))
-                    Pattern = "^" + Pattern;
-                if (!Pattern.EndsWith(".*"))
-                    Pattern = Pattern + "$";
-
-                // Create RegEx
-                return Regex.IsMatch(InputString, Pattern, RegexOptions.IgnoreCase);
-            }
             else
             {
-                // Do a normal string comparisson
-                return (String.Compare(InputString, Pattern, true) == 0);
+                // Create RegEx
+                return Regex.IsMatch(InputString, pattern, RegexOptions.IgnoreCase);
             }
+        }
+
+        private static string WildcardToRegularExpression(string wildcard)
+        {
+            string pattern = wildcard;
+
+            if (pattern.Contains("*"))
+            {
+                pattern = pattern.Replace(@"\", @"\\");
+                pattern = pattern.Replace(@".", @"\.");
+                pattern = pattern.Replace(@"*", @".*");
+                pattern = pattern.Replace(@"[", @"\[");
+                pattern = pattern.Replace(@"]", @"\]");
+                pattern = pattern.Replace(@"(", @"\(");
+                pattern = pattern.Replace(@")", @"\)");
+                pattern = pattern.Replace(@"$", @"\$");
+                pattern = pattern.Replace(@"^", @"\^");
+                pattern = pattern.Replace(@"?", @"\?");
+                pattern = pattern.Replace(@"<", @"\<");
+                pattern = pattern.Replace(@">", @"\>");
+                pattern = pattern.Replace(@"{", @"\{");
+                pattern = pattern.Replace(@"}", @"\}");
+                pattern = pattern.Replace(@"+", @"\+");
+                pattern = pattern.Replace(@"-", @"\-");
+
+                // If the user isn't searching with an asterix at the start or end, include the no characters allowed option.
+                if (!pattern.StartsWith(".*"))
+                    pattern = "^" + pattern;
+                if (!pattern.EndsWith(".*"))
+                    pattern = pattern + "$";
+            }
+
+            return pattern;
         }
         #endregion
     }

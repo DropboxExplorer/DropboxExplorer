@@ -84,97 +84,7 @@ namespace DropboxExplorer
         private DropboxClient _Dropbox = null;
 
         #region Public events
-        public class FileTransferProgressArgs : EventArgs
-        {
-            /// <summary>
-            /// The dropbox file path
-            /// </summary>
-            public string DropboxFilePath { get; private set; }
-
-            /// <summary>
-            /// The local file path
-            /// </summary>
-            public string LocalFilePath { get; private set; }
-
-            /// <summary>
-            /// The total size of the file
-            /// </summary>
-            public ulong FileSize { get; private set; }
-
-            /// <summary>
-            /// The current numbers of bytes trasnfered
-            /// </summary>
-            public ulong BytesTransfered { get; internal set; }
-
-            public DateTime Started { get; private set; }
-
-            /// <summary>
-            /// Calculate transfer progress as percentage
-            /// </summary>
-            public int Percentage
-            {
-                get
-                {
-                    return (int)Math.Round(100F * BytesTransfered / FileSize);
-                }
-            }
-
-            public string Remaining
-            {
-                get
-                {
-                    double ellapsedMS = (DateTime.Now - Started).TotalMilliseconds;
-                    double percentage = (double)BytesTransfered / (double)FileSize;
-                    if (ellapsedMS < 2000)
-                        return "Calculating...";
-
-                    int remainingMS = (int)((ellapsedMS / percentage) - ellapsedMS);
-                    return FormatMS(remainingMS + 1000);
-                }
-            }
-
-            private static string FormatMS(int ms)
-            {
-                string s = "";
-                TimeSpan diff = new TimeSpan(0, 0, 0, 0, ms);
-
-                if (diff.TotalSeconds < 2.0)
-                    s = "1 second";
-                else if (diff.TotalSeconds <= 55.0)
-                    s = FormatNumber(RoundTime(diff.TotalSeconds), "second");
-                else if (diff.TotalSeconds <= 65.0)
-                    s = "1 minute";
-                else if (diff.TotalMinutes < 10.0)
-                    s = FormatNumber(diff.Minutes, "minute") + " " + FormatNumber(RoundTime(diff.Seconds), "second");
-                else if (diff.TotalHours <= 1.0)
-                    s = FormatNumber(RoundTime(diff.TotalMinutes), "minute");
-                else
-                    s = FormatNumber(RoundTime(diff.TotalHours), "hour");
-
-                return s;
-            }
-
-            private static string FormatNumber(int number, string description)
-            {
-                return string.Format("{0} {1}{2}", number, description, (number == 1 ? "" : "s"));
-            }
-
-            private static int RoundTime(double time)
-            {
-                int rounded = (int)(Math.Round(time / 5.0) * 5);
-                return Math.Max(1, rounded);
-            }
-
-            internal FileTransferProgressArgs(string dropboxFilePath, string localFilePath, ulong fileSize)
-            {
-                DropboxFilePath = dropboxFilePath;
-                LocalFilePath= localFilePath;
-                FileSize = fileSize;
-                BytesTransfered = 0;
-                Started = DateTime.Now;
-            }
-        }
-
+        
         /// <summary>
         /// The path has been changed
         /// </summary>
@@ -277,8 +187,26 @@ namespace DropboxExplorer
         /// </summary>
         /// <param name="dropboxFilePath">The path to the dropbox file to download</param>
         /// <param name="localFilePath">The local path to save the file as</param>
+        /// <param name="cancelToken">The async cancellation token</param>
         /// <returns>The result of the asynchronous operation</returns>
         public async Task DownloadFile(string dropboxFilePath, string localFilePath, CancellationToken cancelToken)
+        {
+            await DownloadFileChunks(dropboxFilePath, localFilePath, cancelToken);
+
+            if (cancelToken.IsCancellationRequested && File.Exists(localFilePath))
+            {
+                try
+                {
+                    File.Delete(localFilePath);
+                }
+                catch { }
+            }
+        }
+
+        /// <summary>
+        /// Downloads a file from Dropbox in chunks
+        /// </summary>
+        private async Task DownloadFileChunks(string dropboxFilePath, string localFilePath, CancellationToken cancelToken)
         {
             if (File.Exists(localFilePath))
                 File.Delete(localFilePath);
@@ -287,7 +215,7 @@ namespace DropboxExplorer
             ulong fileSize = download.Response.Size;
 
             FileTransferProgressArgs args = new FileTransferProgressArgs(dropboxFilePath, localFilePath, fileSize);
-            
+
             var buffer = new byte[ChunkSize];
 
             // Open the stream and download a small chunk at a time so we can report proress
@@ -313,26 +241,30 @@ namespace DropboxExplorer
                             length = stream.Read(buffer, 0, ChunkSize);
 
                             if (cancelToken.IsCancellationRequested)
+                            {
                                 return;
+                            }
                         }
                     });
                     await asyncDownload;
                 }
             }
         }
-        
+
         /// <summary>
         /// Uploads a file to Dropbox
         /// </summary>
         /// <param name="dropboxFilePath">The path to save the upload as within Dropbox</param>
         /// <param name="localFilePath">The local file to upload</param>
+        /// <param name="overwrite">True to overwrite and existing file with the same name</param>
+        /// <param name="cancelToken">The async cancellation token</param>
         /// <returns>The result of the asynchronous operation</returns>
         public async Task UploadFile(string dropboxFilePath, string localFilePath, bool overwrite, CancellationToken cancelToken)
         {
             
             using (FileStream stream = new FileStream(localFilePath, System.IO.FileMode.Open))
             {
-                FileTransferProgressArgs args = new FileTransferProgressArgs(dropboxFilePath, localFilePath, (ulong)stream.Length);
+                FileTransferProgressArgs args = new FileTransferProgressArgs(localFilePath, dropboxFilePath, (ulong)stream.Length);
                 if (FileTransferProgress != null)
                     FileTransferProgress(this, args);
 
@@ -397,9 +329,11 @@ namespace DropboxExplorer
                         }
                     }
                 }
-                
+
                 if (cancelToken.IsCancellationRequested)
+                {
                     return;
+                }
             }
         }
         

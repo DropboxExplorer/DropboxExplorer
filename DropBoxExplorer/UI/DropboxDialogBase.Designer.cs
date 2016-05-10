@@ -168,7 +168,7 @@
             this.KeyPreview = true;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(600, 300);
+            this.MinimumSize = new System.Drawing.Size(600, 350);
             this.Name = "DropboxDialogBase";
             this.ShowInTaskbar = false;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;

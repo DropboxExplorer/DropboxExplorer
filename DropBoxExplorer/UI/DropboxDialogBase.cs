@@ -66,8 +66,15 @@ namespace DropboxExplorer
         #endregion
 
         #region Public interface
+        /// <summary>
+        /// Gets the path to the current folder
+        /// </summary>
         internal string Path { get; private set; } = "";
 
+        /// <summary>
+        /// Gets or sets the filter using standard notation, e.g. "Office Documents (*.docx, *.xlsx)|*.docx; *.xlsx|All Files (*.*)|*.*".
+        /// Using this option might make the default dialog width too narrow. Increase the dialog width to 800 pixels for a better proportioned UI.
+        /// </summary>
         public string Filter
         {
             get
@@ -82,6 +89,9 @@ namespace DropboxExplorer
             }
         }
 
+        /// <summary>
+        /// Sets the overwrite options when transfering files
+        /// </summary>
         public FileOverwriteOptions OverwriteOptions { get; set; } = FileOverwriteOptions.NewName;
 
         /// <summary>
@@ -224,7 +234,10 @@ namespace DropboxExplorer
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            btnCancel.Enabled = false;
+            // Make it appear instant
+            this.Hide();
+
+            // Cancel any async transfer
             fileTransfer1.Cancel();
             this.Close();
         }

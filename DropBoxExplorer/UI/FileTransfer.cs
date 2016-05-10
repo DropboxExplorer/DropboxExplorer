@@ -129,18 +129,22 @@ namespace DropboxExplorer
             catch { }
         }
 
-        private void Dropbox_FileTransferProgress(object sender, DropboxFiles.FileTransferProgressArgs e)
+        private void Dropbox_FileTransferProgress(object sender, FileTransferProgressArgs e)
         {
-            if (this.InvokeRequired)
-                this.Invoke(new MethodInvoker(() => { UpdateProgress(e); }));
-            else
-                UpdateProgress(e);
+            UpdateProgress(e);
         }
 
-        private void UpdateProgress(DropboxFiles.FileTransferProgressArgs e)
+        private void UpdateProgress(FileTransferProgressArgs e)
         {
-            progress.Value = e.Percentage;
-            lblRemaining.Text = e.Remaining;
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new MethodInvoker(() => { UpdateProgress(e); }));
+            }
+            else
+            {
+                progress.Value = e.Percentage;
+                lblRemaining.Text = e.Remaining;
+            }
         }
 
         private void FileTransfer_Resize(object sender, EventArgs e)
