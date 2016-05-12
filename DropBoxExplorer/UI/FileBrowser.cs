@@ -138,7 +138,7 @@ namespace DropboxExplorer
             listing.ClearSelection();
         }
         #endregion
-        
+
         #region Event handlers
         #region Login panel
         private async void login_Authenticated(object sender, EventArgs e)
@@ -215,6 +215,13 @@ namespace DropboxExplorer
             toolbar.Enabled = true;
 
             await NavigateToFolder(Path, true);
+
+            using (var dropbox = new DropboxFiles())
+            {
+                Task<UserAccount> account = dropbox.GetUser();
+                await account;
+                toolbar.SetUserAccount(account.Result);
+            }
         }
 
         private async Task NavigateToFolder(string path, bool addToBackButton)

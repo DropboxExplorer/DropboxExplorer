@@ -24,6 +24,7 @@ using Dropbox.Api.Sharing;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Net;
 
 namespace DropboxExplorer
 {
@@ -458,6 +459,37 @@ namespace DropboxExplorer
             #endregion
 
             return items;
+        }
+
+        /// <summary>
+        /// Gets the current dropbox user details
+        /// </summary>
+        /// <returns>The result of the asynchronous operation</returns>
+        public async Task<UserAccount> GetUser()
+        {
+            Task<Dropbox.Api.Users.FullAccount> result = _Dropbox.Users.GetCurrentAccountAsync();
+            await result;
+
+            UserAccount account = new UserAccount();
+            account.Username = result.Result.Name.DisplayName;
+            account.Email = result.Result.Email;
+
+            var downloadImage = Task.Factory.StartNew(() =>
+            {
+                using (var wc = new WebClient())
+                {
+                    string url = result.Result.ProfilePhotoUrl;
+                    url = url.Replace("size=128x128", "size=16x16");
+
+                    using (var imgStream = new MemoryStream(wc.DownloadData(url)))
+                    {
+                        account.Image = Image.FromStream(imgStream);
+                    }
+                }
+            });
+            await downloadImage;
+
+            return account;
         }
     }
 }

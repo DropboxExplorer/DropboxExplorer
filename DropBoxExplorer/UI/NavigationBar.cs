@@ -101,6 +101,7 @@ namespace DropboxExplorer
         private ToolStripItem _SeparatorPath = null;
         private ToolStripItem _ButtonRoot = null;
         private ToolStripControlHost _TextSearch = null;
+        private ToolStripLabel _LabelUser = null;
 
         private List<ToolStripItem> _BreadcrumbButtons = new List<ToolStripItem>();
         private List<string> _PreviousPaths = new List<string>();
@@ -123,7 +124,12 @@ namespace DropboxExplorer
 
             this.Items.Add(_SeparatorPath = new ToolStripLabel(" "));
             _ButtonRoot = AddButton("Dropbox", "Return to root folder", Properties.Resources.Dropbox, true, _ButtonRoot_Click, "");
-            
+
+            this.Items.Add(_LabelUser = new ToolStripLabel("", Properties.Resources.User));
+            _LabelUser.Enabled = false;
+            _LabelUser.Alignment = ToolStripItemAlignment.Right;
+            _LabelUser.Padding = new Padding(2, 0, 2, 3);
+
             this.Items.Add(_TextSearch = new ToolStripControlHost(new SearchBox()));
             _TextSearch.Alignment = ToolStripItemAlignment.Right;
             _TextSearch.ToolTipText = "Search";
@@ -195,6 +201,15 @@ namespace DropboxExplorer
             _ButtonRoot.Enabled = true;
             _ButtonBack.Enabled = (_PreviousPaths.Count > 0);
             _ButtonUp.Enabled = !DropboxFiles.IsRootPath(_CurrentPath);
+        }
+
+        internal void SetUserAccount(UserAccount account)
+        {
+            if (account.Image != null)
+                _LabelUser.Image = account.Image;
+
+            _LabelUser.ToolTipText = account.Username + Environment.NewLine + account.Email;
+            _LabelUser.Enabled = true;
         }
         #endregion
 

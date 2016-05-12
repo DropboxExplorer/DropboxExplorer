@@ -15,6 +15,7 @@ limitations under the License.
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 
 namespace DropboxExplorer
 {
@@ -180,5 +181,17 @@ namespace DropboxExplorer
             Started = DateTime.Now;
         }
         #endregion
+    }
+
+    /// <summary>
+    /// Encapsulates a user account
+    /// </summary>
+    public class UserAccount
+    {
+        public string Username { get; internal set; }
+
+        public string Email { get; internal set; }
+
+        public Image Image { get; internal set; }
     }
 }
