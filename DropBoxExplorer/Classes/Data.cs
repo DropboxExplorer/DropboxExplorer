@@ -107,6 +107,9 @@ namespace DropboxExplorer
         {
             get
             {
+                if (BytesTransfered == FileSize)
+                    return "Finishing";
+
                 double ellapsedMS = (DateTime.Now - Started).TotalMilliseconds;
                 double percentage = (double)BytesTransfered / (double)FileSize;
                 if (ellapsedMS < 2000)

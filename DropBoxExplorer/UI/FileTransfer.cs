@@ -26,10 +26,6 @@ namespace DropboxExplorer
     /// </summary>
     internal partial class FileTransfer : UserControl
     {
-        // Controls the minimum time the control will be visible
-        // Small files can transfer very fast and hence this control would othewrwise flicker visible and invisible
-        private const int FileTransferMinTimeMS = 2000;
-        
         private CancellationTokenSource _cancellationTokenSource = null;
 
         public FileTransfer()
@@ -53,8 +49,7 @@ namespace DropboxExplorer
                 lblDestination.Text = Path.GetDirectoryName(localFilePath);
                 this.Show();
                 this.BringToFront();
-
-                DateTime timeout = DateTime.Now.AddMilliseconds(FileTransferMinTimeMS);
+                
                 _cancellationTokenSource = new CancellationTokenSource();
 
                 using (var dropbox = new DropboxFiles())
@@ -65,11 +60,8 @@ namespace DropboxExplorer
 
                 _cancellationTokenSource = null;
 
-                while (DateTime.Now < timeout)
-                {
-                    System.Threading.Thread.Sleep(100);
-                    Application.DoEvents();
-                }
+                this.Refresh();
+                Thread.Sleep(300);
             }
             catch (Exception ex)
             {
@@ -93,7 +85,6 @@ namespace DropboxExplorer
                 lblDestination.Text = Path.GetDirectoryName(dropboxFilePath);
                 this.Show();
                 this.BringToFront();
-                DateTime timeout = DateTime.Now.AddMilliseconds(FileTransferMinTimeMS);
                 _cancellationTokenSource = new CancellationTokenSource();
 
                 using (var dropbox = new DropboxFiles())
@@ -104,11 +95,8 @@ namespace DropboxExplorer
 
                 _cancellationTokenSource = null;
 
-                while (DateTime.Now < timeout)
-                {
-                    System.Threading.Thread.Sleep(100);
-                    Application.DoEvents();
-                }
+                this.Refresh();
+                Thread.Sleep(300);
             }
             catch (Exception ex)
             {
