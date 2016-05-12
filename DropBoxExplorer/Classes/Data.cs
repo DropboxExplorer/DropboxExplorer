@@ -130,12 +130,16 @@ namespace DropboxExplorer
                 s = FormatNumber(RoundTime(diff.TotalSeconds), "second");
             else if (diff.TotalSeconds <= 65.0)
                 s = "1 minute";
+            else if (diff.TotalMinutes < 10.0 && diff.Seconds < 3)
+                s = FormatNumber(diff.Minutes, "minute");
+            else if (diff.TotalMinutes < 10.0 && diff.Seconds > 57)
+                s = FormatNumber(diff.Minutes + 1, "minute");
             else if (diff.TotalMinutes < 10.0)
                 s = FormatNumber(diff.Minutes, "minute") + " " + FormatNumber(RoundTime(diff.Seconds), "second");
             else if (diff.TotalHours <= 1.0)
-                s = FormatNumber(RoundTime(diff.TotalMinutes), "minute");
+                s = FormatNumber((int)Math.Round(diff.TotalMinutes), "minute");
             else
-                s = FormatNumber(RoundTime(diff.TotalHours), "hour");
+                s = FormatNumber((int)Math.Round(diff.TotalHours), "hour");
 
             return s;
         }

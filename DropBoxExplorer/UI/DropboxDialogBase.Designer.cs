@@ -72,7 +72,7 @@
             this.txtFilename.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.txtFilename.MaximumSize = new System.Drawing.Size(2000, 21);
             this.txtFilename.Name = "txtFilename";
-            this.txtFilename.Size = new System.Drawing.Size(61, 21);
+            this.txtFilename.Size = new System.Drawing.Size(61, 22);
             this.txtFilename.TabIndex = 1;
             this.txtFilename.TextChanged += new System.EventHandler(this.txtFilename_TextChanged);
             // 
@@ -82,9 +82,9 @@
             this.lblFilename.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblFilename.Enabled = false;
             this.lblFilename.Location = new System.Drawing.Point(15, 12);
-            this.lblFilename.Margin = new System.Windows.Forms.Padding(3, 0, 3, 6);
+            this.lblFilename.Margin = new System.Windows.Forms.Padding(3, 0, 3, 3);
             this.lblFilename.Name = "lblFilename";
-            this.lblFilename.Size = new System.Drawing.Size(59, 23);
+            this.lblFilename.Size = new System.Drawing.Size(59, 26);
             this.lblFilename.TabIndex = 0;
             this.lblFilename.Text = "File name:";
             this.lblFilename.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -106,10 +106,10 @@
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 578);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.Padding = new System.Windows.Forms.Padding(12);
+            this.tableLayoutPanel1.Padding = new System.Windows.Forms.Padding(12, 12, 12, 0);
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(584, 53);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(584, 41);
             this.tableLayoutPanel1.TabIndex = 4;
             // 
             // cboFilter
@@ -170,6 +170,7 @@
             this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(600, 350);
             this.Name = "DropboxDialogBase";
+            this.Padding = new System.Windows.Forms.Padding(0, 0, 0, 12);
             this.ShowInTaskbar = false;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
