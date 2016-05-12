@@ -101,22 +101,27 @@ namespace DropboxExplorer
         }
 
         /// <summary>
-        /// Generates a textual description of the estimates time remaining
+        /// Generates a textual description of the estimate of time remaining
         /// </summary>
         public string Remaining
         {
             get
             {
                 if (BytesTransfered == FileSize)
-                    return "Finishing";
+                    return "Finished";
 
                 double ellapsedMS = (DateTime.Now - Started).TotalMilliseconds;
                 double percentage = (double)BytesTransfered / (double)FileSize;
                 if (ellapsedMS < 2000)
-                    return "Calculating...";
+                    return "Calculating…";
+                
+                double remainingMS = (ellapsedMS / percentage) - ellapsedMS;
 
-                int remainingMS = (int)((ellapsedMS / percentage) - ellapsedMS);
-                return FormatMS(remainingMS + 1000);
+                // Apply a scalling so the rate increases as we get nearer zero
+                // This gives a better impression of progress than trying to be accurate
+                remainingMS *= 1.1F;
+                
+                return FormatMS((int)remainingMS);
             }
         }
         #endregion
