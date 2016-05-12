@@ -76,7 +76,7 @@
             this.lblRemaining.Name = "lblRemaining";
             this.lblRemaining.Size = new System.Drawing.Size(174, 13);
             this.lblRemaining.TabIndex = 7;
-            this.lblRemaining.Text = "Calculating...";
+            this.lblRemaining.Text = "Calculating…";
             // 
             // progress
             // 
