@@ -142,6 +142,12 @@
     <Compile Include="UI\SearchBox.Designer.cs">
       <DependentUpon>SearchBox.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\UserAccountPopup.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\UserAccountPopup.Designer.cs">
+      <DependentUpon>UserAccountPopup.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\WebLogin.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -168,6 +174,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\SearchBox.resx">
       <DependentUpon>SearchBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\UserAccountPopup.resx">
+      <DependentUpon>UserAccountPopup.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\WebLogin.resx">
       <DependentUpon>WebLogin.cs</DependentUpon>

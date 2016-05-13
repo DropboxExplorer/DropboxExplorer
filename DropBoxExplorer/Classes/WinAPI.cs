@@ -567,5 +567,66 @@ namespace DropboxExplorer
             SetCursor(LoadCursor(0, IDC_HAND));
         }
         #endregion
+
+        #region Forms
+        internal enum SetWindowPositionInsertAfterFlags : int
+        {
+            TopMost = -1,
+            NoTopMost = -2,
+            Top = 0,
+            Bottom = 1
+        }
+
+        [Flags]
+        internal enum SetWindowPositionFlags : uint
+        {
+            NoSize = 0x0001,
+            NoMove = 0x0002,
+            NoZOrder = 0x0004,
+            NoRedraw = 0x0008,
+            NoActivate = 0x0010,
+            FrameChanged = 0x0020,
+            ShowWindow = 0x0040,
+            HideWindow = 0x0080,
+            NoCopyBits = 0x0100,
+            NoOwnerZOrder = 0x0200,
+            NoSendChanging = 0x0400
+        }
+
+        internal enum ShowWindowFlags : int
+        {
+            Hide = 0,
+            ShowNormal = 1,
+            Normal = 1,
+            ShowMinimised = 2,
+            ShowMaximised = 3,
+            Maximise = 3,
+            ShowNoActivate = 4,
+            Show = 5,
+            Minimise = 6,
+            ShowMinNoActivate = 7,
+            ShowNA = 8,
+            Restore = 9,
+            ShowDefault = 10,
+            ForceMinimise = 11,
+            Max = 11
+        }
+
+        [DllImport("user32.dll")]
+        private static extern bool SetWindowPos(IntPtr hWnd, SetWindowPositionInsertAfterFlags position, int X, int Y, int cx, int cy, SetWindowPositionFlags uFlags);
+
+        [DllImport("user32.dll")]
+        private static extern bool ShowWindow(IntPtr hWnd, ShowWindowFlags nCmdShow);
+
+        /// <summary>
+        /// Shows a form as top-most without stealing the focus
+        /// </summary>
+        /// <param name="form">The form to show</param>
+        internal static void ShowInactiveTopmostForm(System.Windows.Forms.Form form)
+        {
+            ShowWindow(form.Handle, ShowWindowFlags.ShowNoActivate);
+            SetWindowPos(form.Handle, SetWindowPositionInsertAfterFlags.TopMost, form.Left, form.Top, form.Width, form.Height, SetWindowPositionFlags.NoActivate);
+        }
+        #endregion
     }
 }

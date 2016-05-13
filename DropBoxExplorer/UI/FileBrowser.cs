@@ -216,7 +216,7 @@ namespace DropboxExplorer
 
             await NavigateToFolder(Path, true);
 
-            using (var dropbox = new DropboxFiles())
+            using (var dropbox = new DropboxUsers())
             {
                 Task<UserAccount> account = dropbox.GetUser();
                 await account;

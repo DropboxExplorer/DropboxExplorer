@@ -106,6 +106,7 @@ namespace DropboxExplorer
         private List<ToolStripItem> _BreadcrumbButtons = new List<ToolStripItem>();
         private List<string> _PreviousPaths = new List<string>();
         private string _CurrentPath = "";
+        private UserAccount _UserAccount = null;
         #endregion
 
         #region Constructor
@@ -126,9 +127,12 @@ namespace DropboxExplorer
             _ButtonRoot = AddButton("Dropbox", "Return to root folder", Properties.Resources.Dropbox, true, _ButtonRoot_Click, "");
 
             this.Items.Add(_LabelUser = new ToolStripLabel("", Properties.Resources.User));
+            _LabelUser.ToolTipText = "Retrieving account details…";
             _LabelUser.Enabled = false;
             _LabelUser.Alignment = ToolStripItemAlignment.Right;
             _LabelUser.Padding = new Padding(2, 0, 2, 3);
+            _LabelUser.MouseHover += _LabelUser_MouseHover;
+            _LabelUser.MouseLeave += _LabelUser_MouseLeave;
 
             this.Items.Add(_TextSearch = new ToolStripControlHost(new SearchBox()));
             _TextSearch.Alignment = ToolStripItemAlignment.Right;
@@ -205,10 +209,8 @@ namespace DropboxExplorer
 
         internal void SetUserAccount(UserAccount account)
         {
-            if (account.Image != null)
-                _LabelUser.Image = account.Image;
-
-            _LabelUser.ToolTipText = account.Username + Environment.NewLine + account.Email;
+            _UserAccount = account;
+            _LabelUser.ToolTipText = "";
             _LabelUser.Enabled = true;
         }
         #endregion
@@ -263,6 +265,19 @@ namespace DropboxExplorer
             if (SearchChanged == null) return;
 
             SearchChanged(this, new SearchChangedArgs(_TextSearch.Text));
+        }
+
+        private void _LabelUser_MouseHover(object sender, EventArgs e)
+        {
+            if (_UserAccount == null) return;
+
+            Rectangle rect = this.RectangleToScreen(new Rectangle(Point.Empty, this.Size));
+            UserAccountPopup.ShowPopup(rect, _UserAccount);
+        }
+
+        private void _LabelUser_MouseLeave(object sender, EventArgs e)
+        {
+            UserAccountPopup.ClosePopup();
         }
         #endregion
 

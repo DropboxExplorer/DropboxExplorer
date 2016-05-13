@@ -192,6 +192,10 @@ namespace DropboxExplorer
 
         public string Email { get; internal set; }
 
+        public string Level { get;  internal set; }
+
+        public string Country { get; internal set; }
+
         public Image Image { get; internal set; }
     }
 }

@@ -84,8 +84,7 @@ namespace DropboxExplorer
 
         private DropboxClient _Dropbox = null;
 
-        #region Public events
-        
+        #region Public events        
         /// <summary>
         /// The path has been changed
         /// </summary>
@@ -101,6 +100,18 @@ namespace DropboxExplorer
                 throw new AuthorizationException();
 
             _Dropbox = new DropboxClient(DropboxAuthorization.AccessToken);
+        }
+
+        /// <summary>
+        /// Disposed the object
+        /// </summary>
+        void IDisposable.Dispose()
+        {
+            if (_Dropbox != null)
+            {
+                _Dropbox.Dispose();
+                _Dropbox = null;
+            }
         }
 
         #region Static helper methods
@@ -366,19 +377,7 @@ namespace DropboxExplorer
             Task<FileSystemObjects> objects = MetadataToFileSystemObjects(entries, dialogType);
             return objects.Result;
         }
-
-        /// <summary>
-        /// Disposed the object
-        /// </summary>
-        void IDisposable.Dispose()
-        {
-            if (_Dropbox != null)
-            {
-                _Dropbox.Dispose();
-                _Dropbox = null;
-            }
-        }
-
+        
         /// <summary>
         /// Converts a collection Dropbox Metadata objects to our own file system type
         /// </summary>
@@ -460,6 +459,37 @@ namespace DropboxExplorer
 
             return items;
         }
+    }
+
+    /// <summary>
+    /// Wraps the functionality to interrogate user accounts
+    /// </summary>
+    internal class DropboxUsers : IDisposable
+    {
+        private DropboxClient _Dropbox = null;
+
+        /// <summary>
+        /// Creates a new DropboxUsers class
+        /// </summary>
+        internal DropboxUsers()
+        {
+            if (string.IsNullOrEmpty(DropboxAuthorization.AccessToken))
+                throw new AuthorizationException();
+
+            _Dropbox = new DropboxClient(DropboxAuthorization.AccessToken);
+        }
+
+        /// <summary>
+        /// Disposed the object
+        /// </summary>
+        void IDisposable.Dispose()
+        {
+            if (_Dropbox != null)
+            {
+                _Dropbox.Dispose();
+                _Dropbox = null;
+            }
+        }
 
         /// <summary>
         /// Gets the current dropbox user details
@@ -473,18 +503,16 @@ namespace DropboxExplorer
             UserAccount account = new UserAccount();
             account.Username = result.Result.Name.DisplayName;
             account.Email = result.Result.Email;
+            account.Level = (result.Result.AccountType.IsPro ? "Pro" : result.Result.AccountType.IsBusiness ? "Business" : "Basic");
+            account.Country = result.Result.Country;
 
             var downloadImage = Task.Factory.StartNew(() =>
             {
                 using (var wc = new WebClient())
                 {
                     string url = result.Result.ProfilePhotoUrl;
-                    url = url.Replace("size=128x128", "size=16x16");
-
-                    using (var imgStream = new MemoryStream(wc.DownloadData(url)))
-                    {
-                        account.Image = Image.FromStream(imgStream);
-                    }
+                    MemoryStream imgStream = new MemoryStream(wc.DownloadData(url));
+                    account.Image = Image.FromStream(imgStream);
                 }
             });
             await downloadImage;
