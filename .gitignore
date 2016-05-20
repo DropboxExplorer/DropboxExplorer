@@ -8,3 +8,5 @@
 /DropBoxExplorer/obj/Debug
 /DropBoxTest/obj/Debug
 *.nupkg
+/DropBoxExplorer/obj/Release
+/DropBoxTest/obj/Release
