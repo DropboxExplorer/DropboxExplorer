@@ -1,6 +1,6 @@
 # Dropbox Explorer
 The Dropbox Explorer common dialog controls can be used as replacement Open and Save dialogs.
-![Screenshot](http://dropboxexplorer.com/filelist.png)
+![Screenshot](https://raw.githubusercontent.com/adylock/DropboxExplorer/master/filelist.png)
 
 ##User Experience
 The first screen the user sees is the Dropbox sign in screen. This is customized with your own icon and application name within your Dropbox configuration. All credentials are managed by Dropbox so there is no security risk due to poor management of confidential data.
