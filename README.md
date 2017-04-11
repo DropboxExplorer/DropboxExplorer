@@ -11,4 +11,4 @@ The dialog optionally provides automatic asynchronous file transfers. Alternativ
 
 ##Developers Guide
 
-View the [Developers Guide](https://github.com/DropboxExplorer/DropboxExplorer/wiki/Developers-Guide) for details on how to include Dropbox Explorer in your software.
+View the [Developers Guide](https://github.com/adylock/DropboxExplorer/wiki/Developers-Guide) for details on how to include Dropbox Explorer in your software.
